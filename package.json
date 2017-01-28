@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "typings": "lib/index",
   "scripts": {
-    "build": "tsc && webpack",
+    "build": "tsc",
     "test": "npm run build && mocha",
     "prepublish": "npm run build && node lib/compile"
   },
