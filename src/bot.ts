@@ -27,7 +27,7 @@ export default class Botler {
   private reducer: ReducerFunction;
   public userMiddleware: UserMiddleware;
   private platforms: Array<PlatformMiddleware> = [];
-  private scripts: { [key: string]: Script } = {};
+  private _scripts: { [key: string]: Script } = {};
   private greetingScript: GreetingFunction;
   private onErrorScript: DialogFunction = defaultErrorScript;
 
@@ -51,12 +51,16 @@ export default class Botler {
 
   public newScript(name: string = DEFAULT_SCRIPT) {
     const newScript = new Script(this, name);
-    this.scripts[name] = newScript;
+    this._scripts[name] = newScript;
     return newScript;
   }
 
   public getScript(name: string = DEFAULT_SCRIPT) {
-    return this.scripts[name];
+    return this._scripts[name];
+  }
+
+  get scripts() {
+    return _.keys(this._scripts);
   }
 
   public addGreeting(script: GreetingFunction) {
@@ -165,7 +169,7 @@ export default class Botler {
       .then(() => {
         const blankScript = function() { return Promise.resolve(); };
         let nextScript = blankScript;
-        if (this.scripts[DEFAULT_SCRIPT]) {
+        if (this._scripts[DEFAULT_SCRIPT]) {
           nextScript = function() {
             return this.scripts[DEFAULT_SCRIPT].run(request, blankScript);
           }.bind(this);
@@ -176,8 +180,8 @@ export default class Botler {
             return Promise.resolve()
               .then(() => this.greetingScript(user, response))
               .then(() => {
-                if (this.scripts[DEFAULT_SCRIPT]) {
-                  return this.scripts[DEFAULT_SCRIPT].run(request, response, blankScript, -1);
+                if (this._scripts[DEFAULT_SCRIPT]) {
+                  return this._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, -1);
                 }
               });
           } else {
@@ -185,10 +189,10 @@ export default class Botler {
             user.scriptStage = -1;
           }
         }
-        if (user.script != null && user.script !== DEFAULT_SCRIPT && this.scripts[user.script]) {
-          return this.scripts[user.script].run(request, response, nextScript);
-        } else if (this.scripts[DEFAULT_SCRIPT]) {
-          return this.scripts[DEFAULT_SCRIPT].run(request, response, blankScript, user.scriptStage);
+        if (user.script != null && user.script !== DEFAULT_SCRIPT && this._scripts[user.script]) {
+          return this._scripts[user.script].run(request, response, nextScript);
+        } else if (this._scripts[DEFAULT_SCRIPT]) {
+          return this._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, user.scriptStage);
         } else {
           throw new Error('No idea how to chain the scripts');
         }

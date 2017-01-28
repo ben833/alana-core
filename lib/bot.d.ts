@@ -14,7 +14,7 @@ export default class Botler {
     private reducer;
     userMiddleware: UserMiddleware;
     private platforms;
-    private scripts;
+    private _scripts;
     private greetingScript;
     private onErrorScript;
     constructor(classifierFiles?: Array<string | TopicCollection>);
@@ -22,6 +22,7 @@ export default class Botler {
     unshiftIntent(newIntent: IntentGenerator): this;
     newScript(name?: string): Script;
     getScript(name?: string): Script;
+    readonly scripts: string[];
     addGreeting(script: GreetingFunction): this;
     setReducer(newReducer: ReducerFunction): this;
     setUserMiddlware(middleware: UserMiddleware): this;
