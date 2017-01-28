@@ -1,22 +1,20 @@
 import * as _ from 'lodash';
 import * as Promise from 'bluebird';
 
-import { TopicCollection } from './classifier';
+import { TopicCollection } from './nlp/classifier';
 import { PlatformMiddleware } from './types/platform';
 import { Intent, Incoming, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, Outgoing, StopFunction } from './types/bot';
 import { UserMiddleware, User, BasicUser } from './types/user';
 
-export { TopicCollection } from './classifier';
+export { TopicCollection } from './nlp/classifier';
 export { Intent, PlatformMiddleware };
 
 import MemoryStorage from './storage/memory';
 import defaultReducer from './default-reducer';
-import NLPEngine from './nlp';
+import NLPEngine from './nlp/nlp';
 import Script, { EndScriptException, stopFunction, StopException, StopScriptReasons} from './script';
 import OutgoingClass from './outgoing';
 import { GreetingMessage } from './types/messages/greeting';
-
-export const defaultClassifierDirectories: Array<string> = [`${__dirname}/../nlp/phrases`];
 
 const DEFAULT_SCRIPT = '';
 
@@ -31,8 +29,8 @@ export default class Botler {
   private greetingScript: GreetingFunction;
   private onErrorScript: DialogFunction = defaultErrorScript;
 
-  constructor(classifierFiles: Array<string|TopicCollection> = defaultClassifierDirectories) {
-    const engine = new NLPEngine(classifierFiles);
+  constructor(classifierFile: string = `${__dirname}/../nlp/classifiers.json`) {
+    const engine = new NLPEngine(classifierFile);
     this.intents = [ engine ];
     this.reducer = defaultReducer.bind(this);
     this.setUserMiddlware(new MemoryStorage(this));

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && mocha",
-    "prepublish": "npm run build && node lib/compile"
+    "prepublish": "npm run build && node lib/nlp/compile"
   },
   "keywords": [
     "bot",
@@ -31,6 +31,7 @@
     "@types/lodash": "^4.14.37",
     "@types/natural": "^0.2.31",
     "@types/node": "^6.0.45",
+    "botler-intents": "github:botlerjs/intents",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "tslint": "^4.3.1",

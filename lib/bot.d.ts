@@ -1,13 +1,11 @@
 /// <reference types="bluebird" />
 import * as Promise from 'bluebird';
-import { TopicCollection } from './classifier';
 import { PlatformMiddleware } from './types/platform';
 import { Intent, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction } from './types/bot';
 import { UserMiddleware, User, BasicUser } from './types/user';
-export { TopicCollection } from './classifier';
+export { TopicCollection } from './nlp/classifier';
 export { Intent, PlatformMiddleware };
 import Script from './script';
-export declare const defaultClassifierDirectories: Array<string>;
 export default class Botler {
     debugOn: Boolean;
     private intents;
@@ -17,7 +15,7 @@ export default class Botler {
     private _scripts;
     private greetingScript;
     private onErrorScript;
-    constructor(classifierFiles?: Array<string | TopicCollection>);
+    constructor(classifierFile?: string);
     addIntent(newIntent: IntentGenerator): this;
     unshiftIntent(newIntent: IntentGenerator): this;
     newScript(name?: string): Script;
