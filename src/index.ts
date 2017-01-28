@@ -5,3 +5,6 @@ export { MessageTypes } from './types/message'
 
 import Botler from './bot';
 export default Botler;
+
+import TestPlatform from './testing/platform';
+export { TestPlatform };

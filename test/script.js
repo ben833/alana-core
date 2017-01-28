@@ -5,7 +5,7 @@ const Promise = require('bluebird');
 
 describe('only default script', () => {
   const bot = new Botler.default();
-  const tester = new Botler.Platforms.TestPlatform(bot);
+  const tester = new Botler.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -23,7 +23,7 @@ describe('only default script', () => {
 
 describe('only greeting script', () => {
   const bot = new Botler.default();
-  const tester = new Botler.Platforms.TestPlatform(bot);
+  const tester = new Botler.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -40,7 +40,7 @@ describe('only greeting script', () => {
 
 describe('greeting then default', () => {
   const bot = new Botler.default();
-  const tester = new Botler.Platforms.TestPlatform(bot);
+  const tester = new Botler.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -77,7 +77,7 @@ describe('greeting then default', () => {
 
 describe('greeting -> script -> default', () => {
   const bot = new Botler.default();
-  const tester = new Botler.Platforms.TestPlatform(bot);
+  const tester = new Botler.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -105,7 +105,7 @@ describe('greeting -> script -> default', () => {
 
 describe('script loop', () => {
   const bot = new Botler.default();
-  const tester = new Botler.Platforms.TestPlatform(bot);
+  const tester = new Botler.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
