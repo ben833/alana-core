@@ -5,6 +5,7 @@ const tokenizer = new natural.WordTokenizer();
 import * as util from 'util';
 import * as Promise from 'bluebird';
 import * as fs from 'fs';
+import * as path from 'path';
 
 import { Intent } from '../types/bot';
 import { classifier, GenerateClassifier, TopicCollection, Classifiers, Classification, checkUsingClassifier, runThroughClassifiers } from './classifier';
@@ -14,8 +15,9 @@ export interface Topics {
   places: Array<any>;
 }
 
-const locations: locationMap = loadLocations(`${__dirname}/../../node_modules/botler-intents/locations`);
-const dateClassifiers: Classifiers = GenerateClassifier([`${__dirname}/../../node_modules/botler-intents/dates`]);
+const intentLocation = path.dirname(require.resolve('botler-intents'));
+const locations: locationMap = loadLocations(`${intentLocation}/locations`);
+const dateClassifiers: Classifiers = GenerateClassifier([`${intentLocation}/dates`]);
 
 export function grabTopics(text: string): Promise<Intent> {
   const datesCompacted = runThroughClassifiers(text, dateClassifiers);
@@ -47,7 +49,6 @@ function loadLocations(theDirectory: string): locationMap {
   fs.readdirSync(theDirectory)
     .filter((aDirectory: string) => onlyDirectories(aDirectory))
     .forEach(topic => {
-      console.log('topic:', topic);
       readLocations[topic] = {};
       fs.readdirSync(`${theDirectory}/${topic}`)
         .filter(file => !_.startsWith(file, '.'))
