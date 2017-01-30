@@ -24,14 +24,14 @@
   "dependencies": {
     "bluebird": "^3.4.1",
     "lodash": "^4.11.0",
-    "natural": "^0.4.0"
+    "natural": "^0.4.0",
+    "botler-intents": "github:botlerjs/intents"
   },
   "devDependencies": {
     "@types/bluebird": "^3.0.35",
     "@types/lodash": "^4.14.37",
     "@types/natural": "^0.2.31",
     "@types/node": "^6.0.45",
-    "botler-intents": "github:botlerjs/intents",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "tslint": "^4.3.1",
