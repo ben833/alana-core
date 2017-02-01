@@ -17,6 +17,7 @@ import OutgoingClass from './outgoing';
 import { GreetingMessage } from './types/messages/greeting';
 
 const DEFAULT_SCRIPT = '';
+const defaultClassifierFile = process.env.CLASSIFIER_FILE ? process.env.CLASSIFIER_FILE : `${__dirname}/../nlp/classifiers.json`;
 
 export default class Botler {
   public debugOn: Boolean = false;
@@ -29,7 +30,7 @@ export default class Botler {
   private greetingScript: GreetingFunction;
   private onErrorScript: DialogFunction = defaultErrorScript;
 
-  constructor(classifierFile: string = `${__dirname}/../nlp/classifiers.json`) {
+  constructor(classifierFile: string = defaultClassifierFile) {
     const engine = new NLPEngine(classifierFile);
     this.intents = [ engine ];
     this.reducer = defaultReducer.bind(this);
