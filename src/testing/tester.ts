@@ -73,7 +73,7 @@ export default class Tester {
     return this;
   }
 
-  public then() {
+  public then(...args: any[]) {
     throw new Error('Need to call .run() at end of script');
   }
 

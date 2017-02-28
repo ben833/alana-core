@@ -27,7 +27,7 @@ export default class Tester {
     expectButtons(text: string, button: Array<Button>): this;
     sendText(text: string): this;
     sendButtonClick(payload: string): this;
-    then(): void;
+    then(...args: any[]): void;
     run(): Promise<any>;
     checkForTrailingDialogs(bool: boolean): this;
     private execute();
