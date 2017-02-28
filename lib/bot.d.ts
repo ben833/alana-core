@@ -14,7 +14,7 @@ export default class Botler {
     private platforms;
     private _scripts;
     private greetingScript;
-    private onErrorScript;
+    onErrorScript: DialogFunction;
     constructor(classifierFile?: string);
     addIntent(newIntent: IntentGenerator): this;
     unshiftIntent(newIntent: IntentGenerator): this;

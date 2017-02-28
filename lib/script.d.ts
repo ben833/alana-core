@@ -1,6 +1,7 @@
 /// <reference types="bluebird" />
 import * as Promise from 'bluebird';
-import { Incoming, DialogFunction, Outgoing } from './types/bot';
+import { Incoming, DialogFunction } from './types/bot';
+import Outgoing from './outgoing';
 import Botler from './bot';
 export declare enum StopScriptReasons {
     Called = 0,

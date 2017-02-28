@@ -1,11 +1,11 @@
 /// <reference types="bluebird" />
-import { Outgoing as OutgoingInterface } from './types/bot';
 import { User } from './types/user';
-import * as Message from './types/message';
+import * as Messages from './types/message';
+import ButtonClass from './outgoing/button';
 import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';
-export default class Outgoing implements OutgoingInterface {
+export default class Outgoing {
     promise: Promise<PlatformMiddleware>;
     protected user: User;
     protected bot: Botler;
@@ -15,6 +15,9 @@ export default class Outgoing implements OutgoingInterface {
     startTyping(): void;
     endTyping(): void;
     sendText(text: string): this;
-    createButtons(): Message.ButtonMessage;
-    sendButtons(message: Message.ButtonMessage): this;
+    sendImage(url: string): this;
+    sendButtons(): ButtonClass;
+    sendButtons(message: Messages.ButtonMessage): this;
+    sendAudio(url: string): this;
+    private _send(message);
 }

@@ -21,14 +21,14 @@ export enum TestState {
 }
 
 export default class Tester {
-  private userId: string;
+  public userId: string;
   private script: Array<Responses.Response | IncomingMessage> = [ greetingMessage ];
   private testPlatfom: TestPlatform;
   private step: number = 0;
-  private thePromise: Promise<void> = Promise.resolve();
+  private thePromise: Promise<void>;
   private publicPromise: Promise<any>;
-  private resolve: any;
-  private reject: any;
+  private resolve: () => void;
+  private reject: (err?: Error) =>  void;
   private state: TestState = TestState.notStarted;
   private timeout: number = 20;
   private timer: any;
@@ -37,6 +37,12 @@ export default class Tester {
   constructor(platform: TestPlatform, userId: string = `test-${_.random(999999)}`) {
     this.testPlatfom = platform;
     this.userId = userId;
+    this.thePromise = Promise.resolve()
+      .catch((err: Error) => {
+        console.error('check failed');
+        this.reject(err);
+        this.reject = null;
+      });
   }
 
   public expectText(allowedPhrases: Array<string> | string): this {
@@ -67,16 +73,17 @@ export default class Tester {
     return this;
   }
 
-  public run(): Promise<void> {
+  public then() {
+    throw new Error('Need to call .run() at end of script');
+  }
+
+  public run(): Promise<any> {
     const savedThis = this;
-    this.publicPromise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       savedThis.resolve = resolve;
       savedThis.reject = reject;
+      savedThis.execute();
     });
-
-    this.execute();
-
-    return this.publicPromise;
   }
 
   public checkForTrailingDialogs(bool: boolean): this {
@@ -84,15 +91,19 @@ export default class Tester {
     return this;
   }
 
-  private execute(): Promise<void> {
+  private execute(): void {
     let i = this.step;
     for (i; i < this.script.length; i++) {
       const nextStep = this.script[i];
+      // console.log('step', nextStep);
       if (nextStep instanceof Responses.Response) {
-        return this.thePromise;
+        // console.log('wait for message from test script...');
+        return;
       } else {
+        // console.log('send next step');
         this.step = this.step + 1;
         this.thePromise = this.thePromise.then(() => this.testPlatfom.receive(this.userId, nextStep));
+        return;
       }
     }
 
@@ -110,21 +121,35 @@ export default class Tester {
     }
   }
 
-  public receive<M extends Message>(message: M): Promise<void> {
+  public receive<M extends Message>(message: M): void {
+    // console.log(`receive... ${this.step} of ${this.script.length}`, message);
     if (this.step >= this.script.length) {
       this.state = TestState.error;
       const err = new Error(`received '${util.inspect(message)}' after script completed`);
-      this.reject(err);
-      return Promise.reject(err);
+      if (this.reject) {
+        this.reject(err);
+        this.reject = null;
+      }
+      return;
     }
+
     const currentStep = this.script[this.step];
     if (currentStep instanceof Responses.Response) {
-      this.step++;
-      return Promise.resolve()
-        .then(() => currentStep.check(message))
-        .then(() => this.execute());
+      // console.log('checking...');
+      try {
+        currentStep.check(message);
+      } catch (err) {
+        // console.log('check failed...');
+        if (this.reject) {
+          this.reject(err);
+          this.reject = null;
+        }
+        return;
+      }
+      this.step = this.step + 1;
+      this.execute();
+      return;
     }
-    return Promise.resolve();
   }
 
   public onError(err: Error) {

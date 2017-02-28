@@ -1,13 +1,13 @@
-import { Outgoing as OutgoingInterface } from './types/bot';
 import { User } from './types/user';
-import * as Message from './types/message';
+import * as Messages from './types/message';
+import ButtonClass from './outgoing/button';
 import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';
 import * as _ from 'lodash';
 import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons } from './script';
 
-export default class Outgoing implements OutgoingInterface {
+export default class Outgoing {
   public promise: Promise<PlatformMiddleware> = Promise.resolve(null);
   protected user: User;
   protected bot: Botler;
@@ -37,22 +37,45 @@ export default class Outgoing implements OutgoingInterface {
   }
 
   public sendText(text: string) {
-    const textMessage: Message.TextMessage = {
+    const textMessage: Messages.TextMessage = {
       type: 'text',
       text: text,
     };
-    this.promise = this.promise.then(() => this.user._platform.send(this.user, textMessage)).catch((err: Error) => {
-      console.log('err in ourgoing');
-    });
-    return this;
+    return this._send(textMessage);
   }
 
-  public createButtons(): Message.ButtonMessage {
-    return new Message.ButtonMessage(this);
+  public sendImage(url: string) {
+    const message: Messages.ImageMessage = {
+      type: 'image',
+      url: url,
+    };
+    return this._send(message);
   }
 
-  public sendButtons(message: Message.ButtonMessage) {
-    this.promise = this.promise.then(() => this.user._platform.send(this.user, message));
+  public sendButtons(): ButtonClass;
+  public sendButtons(message: Messages.ButtonMessage): this;
+  public sendButtons() {
+    if (arguments.length === 0) {
+      return new ButtonClass(this);
+    } else {
+      return this._send(arguments[0]);
+    }
+  }
+
+  public sendAudio(url: string) {
+    const message: Messages.AudioMessage = {
+      type: 'audio',
+      url: url,
+    };
+    return this._send(message);
+  }
+
+  private _send(message: Messages.Message): this {
+    this.promise = this.promise
+      .then(() => this.user._platform.send(this.user, message))
+      .catch((err: Error) => {
+        console.log('Error sending message to user', err);
+      });
     return this;
   }
 }

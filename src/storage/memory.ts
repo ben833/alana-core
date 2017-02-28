@@ -7,9 +7,9 @@ import Botler from '../bot';
 
 export default class Memory implements UserMiddleware {
   private users: { [platform: string]: { [id: string]: User } } = {};
-  private bot: Botler;
-  constructor(bot: Botler) {
-    this.bot = bot;
+
+  constructor(bot?: Botler) {
+    return this;
   }
 
   public getUser(user: BasicUser): Promise<User> {

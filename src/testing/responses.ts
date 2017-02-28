@@ -106,9 +106,9 @@ export class ButtonTemplateResponse extends Response {
 
     check(message: messages.ButtonMessage): void {
         const buttons = message.buttons;
-        const textMatches = _.includes(this.allowedText, message.text());
+        const textMatches = _.includes(this.allowedText, message.text);
         if (textMatches === false) {
-          throw new Error(`text doesn't match expected '${this.allowedText}' but recieved '${message.text()}'`);
+          throw new Error(`text doesn't match expected '${this.allowedText}' but recieved '${message.text}'`);
         }
         const buttonsMatch = _.intersectionWith(this.buttons, buttons, _.isEqual).length >= this.buttons.length;
         if (buttonsMatch === false) {

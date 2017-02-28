@@ -1,6 +1,7 @@
 import { User } from './user';
 import * as Promise from 'bluebird';
 import { IncomingMessage } from './message';
+import Outgoing from '../outgoing';
 
 export interface Intent {
   action: string;
@@ -11,23 +12,18 @@ export interface Intent {
 }
 
 export { IncomingMessage };
+export interface InternalMessageDetails {
+  _eaten: boolean;
+}
 
 export interface Incoming {
     user: User;
-    message: IncomingMessage;
+    message: IncomingMessage & InternalMessageDetails;
     intent: Intent;
 };
 
 import * as Message from './message';
 export { Message };
-
-export interface Outgoing {
-    sendText: (text: string) => this;
-    // sendImage: (url: string) => this;
-    createButtons: () => Message.ButtonMessage;
-    // createCarousel: () => CarouselMessage;
-    // createQuickReplies: () => QuickReplies;
-}
 
 export type StopFunction = () => void;
 export type DialogFunction = (incoming: Incoming, response: Outgoing, stop: StopFunction) => Promise<void>;

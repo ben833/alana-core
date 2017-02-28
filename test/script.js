@@ -129,4 +129,74 @@ describe('script loop', () => {
   });
 });
 
+describe('mutli script loop', () => {
+  const bot = new Botler.default();
+  const tester = new Botler.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.addGreeting(function(user, response) {
+    response.sendText('Menu: echo, order');
+  });
+
+  bot.newScript()
+    .expect.text((sessions, response) => {
+      response.startScript(sessions.message.text)
+    })
+
+  bot.newScript('order')
+    .dialog((sessions, response) => {
+      response.sendText('1');
+      response.sendText('2');
+    })
+    .dialog((sessions, response) => {
+      response.sendText('3');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .expectText('Menu: echo, order')
+      .sendText('order')
+      .expectText('1')
+      .expectText('2')
+      .expectText('3')
+      .run();
+  });
+});
+
+describe('mutli script loop', () => {
+  const bot = new Botler.default();
+  const tester = new Botler.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.addGreeting(function(user, response) {
+    response.sendText('Menu: echo, order');
+  });
+
+  bot.newScript()
+    .expect.text((sessions, response) => {
+      response.startScript(sessions.message.text)
+    })
+
+  bot.newScript('order')
+    .dialog((sessions, response) => {
+      response.sendText('1');
+      response.sendText('2');
+    })
+    .dialog((sessions, response) => {
+      response.sendText('3');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .expectText('Menu: echo, order')
+      .sendText('order')
+      .expectText('1')
+      .expectText('2')
+      .expectText('3')
+      .run();
+  });
+});
+
 

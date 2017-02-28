@@ -10,7 +10,7 @@ export declare enum TestState {
     done = 3,
 }
 export default class Tester {
-    private userId;
+    userId: string;
     private script;
     private testPlatfom;
     private step;
@@ -27,9 +27,10 @@ export default class Tester {
     expectButtons(text: string, button: Array<Button>): this;
     sendText(text: string): this;
     sendButtonClick(payload: string): this;
-    run(): Promise<void>;
+    then(): void;
+    run(): Promise<any>;
     checkForTrailingDialogs(bool: boolean): this;
     private execute();
-    receive<M extends Message>(message: M): Promise<void>;
+    receive<M extends Message>(message: M): void;
     onError(err: Error): void;
 }

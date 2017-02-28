@@ -19,7 +19,6 @@ export interface BasicUser {
 
 // Storage middlwware
 export declare class UserMiddleware {
-  public getUser?: <U extends User>(user: BasicUser) => Promise<U>;
-  public saveUser?: <U extends User>(user: U) => Promise<U>;
-  constructor(bot: Botler);
+  public getUser: <U extends User>(user: BasicUser) => Promise<U>;
+  public saveUser: <U extends User>(user: U) => Promise<U>;
 };

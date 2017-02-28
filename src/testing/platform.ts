@@ -26,11 +26,8 @@ export default class TestPlatform implements PlatformMiddleware {
 
   public send <U extends User, M extends Message>(user: U, message: M): Promise<this> {
     const test = this.testers[user.id];
-    return test.receive(message)
-      .catch((err: Error) => {
-        test.onError(err);
-      })
-      .then(() => this);
+    test.receive(message);
+    return Promise.resolve(this);
   }
 
   public receive(userId: string, message: IncomingMessage): Promise<void> {

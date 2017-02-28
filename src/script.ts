@@ -1,8 +1,9 @@
 import * as _ from 'lodash';
 import * as Promise from 'bluebird';
 
-import { Incoming, DialogFunction, Outgoing } from './types/bot';
+import { Incoming, DialogFunction } from './types/bot';
 import { MessageType, MessageTypes } from './types/message';
+import Outgoing from './outgoing';
 
 import Botler from './bot';
 
@@ -368,13 +369,22 @@ export default class Script {
     return Promise.resolve()
       .then(() => {
         if (currentDialog.type === 'expect') {
-          if (currentDialog.expect.type !== request.message.type) {
-            console.log('expect type mismatch');
+          if (currentDialog.expect.type !== request.message.type || request.message._eaten === true) {
             return stopFunction(StopScriptReasons.ExpectCaught);
           }
         }
       })
-      .then(() => currentScript(request, response, stopFunction))
+      .then(() => {
+        if (currentDialog.type === 'expect') {
+          request.message._eaten = true;
+        }
+        return currentScript(request, response, stopFunction);
+      })
+      .then(() => {
+        if (currentDialog.type === 'expect') {
+          request.message._eaten = true;
+        }
+      })
       .then(() => {
         if (nextDialogs.length === 0) {
           throw new EndScriptException(EndScriptReasons.Reached);
@@ -387,7 +397,10 @@ export default class Script {
         }
       })
       .catch((err: Error) => {
-        if (err instanceof StopException && currentDialog.type === 'expect' && currentDialog.expect !== null && currentDialog.expect.catch !== null) {
+        if ( err instanceof StopException
+        && currentDialog.type === 'expect'
+        && currentDialog.expect !== null
+        && currentDialog.expect.catch !== null ) {
           return Promise.resolve()
             .then(() => currentDialog.expect.catch(request, response, stopFunction))
             .then(() => stopFunction(StopScriptReasons.ExpectCaught));

@@ -3,7 +3,7 @@ import * as Promise from 'bluebird';
 
 import { TopicCollection } from './nlp/classifier';
 import { PlatformMiddleware } from './types/platform';
-import { Intent, Incoming, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, Outgoing, StopFunction } from './types/bot';
+import { Intent, Incoming, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, StopFunction } from './types/bot';
 import { UserMiddleware, User, BasicUser } from './types/user';
 
 export { TopicCollection } from './nlp/classifier';
@@ -13,7 +13,7 @@ import MemoryStorage from './storage/memory';
 import defaultReducer from './default-reducer';
 import NLPEngine from './nlp/nlp';
 import Script, { EndScriptException, stopFunction, StopException, StopScriptReasons} from './script';
-import OutgoingClass from './outgoing';
+import Outgoing from './outgoing';
 import { GreetingMessage } from './types/messages/greeting';
 
 const DEFAULT_SCRIPT = '';
@@ -26,9 +26,10 @@ export default class Botler {
   private reducer: ReducerFunction;
   public userMiddleware: UserMiddleware;
   private platforms: Array<PlatformMiddleware> = [];
+  // tslint:disable-next-line:variable-name
   private _scripts: { [key: string]: Script } = {};
   private greetingScript: GreetingFunction;
-  private onErrorScript: DialogFunction = defaultErrorScript;
+  public onErrorScript: DialogFunction = defaultErrorScript;
 
   constructor(classifierFile: string = defaultClassifierFile) {
     const engine = new NLPEngine(classifierFile);
@@ -140,7 +141,7 @@ export default class Botler {
       .then(completeUser => {
         completeUser.conversation = completeUser.conversation.concat(message);
         user = completeUser;
-        response = new OutgoingClass(this, user);
+        response = new Outgoing(this, user);
         return completeUser;
       })
       .then(completeUser =>  this.getIntents(completeUser, message))
@@ -148,7 +149,7 @@ export default class Botler {
       .then(intent => {
         request = {
           intent: intent,
-          message: message,
+          message: _.defaults({ _eaten: false }, message),
           user: user,
         };
         return this._process(user, request, response, true);
