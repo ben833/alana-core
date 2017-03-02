@@ -15,6 +15,7 @@ import { GreetingMessage } from './messages/greeting';
 import { AudioMessage } from './messages/audio';
 export declare type IncomingMessage = TextMessage | PostbackMessage | GreetingMessage | ImageMessage;
 export declare type MessageType = Text | Image | Button | Greeting | Postback | Audio;
+export declare type OutgoingMessage = TextMessage | ImageMessage | ButtonMessage | AudioMessage;
 export declare const MessageTypes: {
     text: Text;
     image: Image;

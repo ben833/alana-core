@@ -1,5 +1,6 @@
 import { User } from './types/user';
 import * as Messages from './types/message';
+import { OutgoingMessage } from './types/message';
 import ButtonClass from './outgoing/button';
 import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
@@ -87,7 +88,7 @@ export default class Outgoing {
     return this._send(message);
   }
 
-  private _send(message: Messages.Message): this {
+  private _send(message: OutgoingMessage): this {
     this.promise = this.promise
       .then(() => this.user._platform.send(this.user, message))
       .catch((err: Error) => {

@@ -18,6 +18,7 @@ import { AudioMessage } from './messages/audio';
 
 export type IncomingMessage = TextMessage | PostbackMessage | GreetingMessage | ImageMessage;
 export type MessageType = Text | Image | Button | Greeting | Postback | Audio;
+export type OutgoingMessage = TextMessage | ImageMessage | ButtonMessage | AudioMessage;
 export const MessageTypes: {
     text: Text;
     image: Image;
