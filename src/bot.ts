@@ -133,13 +133,13 @@ export default class Botler {
   }
 
   public processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void> {
-    console.log(basicUser);
     let user: User = null;
     let request: Incoming = null;
     let response: Outgoing = null;
     return this.userMiddleware.getUser(basicUser)
       .catch((err: Error) => _.merge(this.createEmptyUser(), basicUser))
       .then(completeUser => {
+        completeUser._platform = basicUser._platform;
         completeUser.conversation = completeUser.conversation.concat(message);
         user = completeUser;
         response = new Outgoing(this, user);
