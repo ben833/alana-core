@@ -14,6 +14,7 @@ export default class Outgoing {
     endScript(): void;
     startTyping(): void;
     endTyping(): void;
+    send(...args: any[]): this;
     sendText(text: string): this;
     sendImage(url: string): this;
     sendButtons(): ButtonClass;

@@ -198,5 +198,3 @@ describe('mutli script loop', () => {
       .run();
   });
 });
-
-

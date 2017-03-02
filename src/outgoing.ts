@@ -6,6 +6,7 @@ import * as Promise from 'bluebird';
 import Botler from './bot';
 import * as _ from 'lodash';
 import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons } from './script';
+import { MissingArguments, BadArguments } from './errors';
 
 export default class Outgoing {
   public promise: Promise<PlatformMiddleware> = Promise.resolve(null);
@@ -36,7 +37,23 @@ export default class Outgoing {
       throw new Error('not implemented');
   }
 
+  public send(...args: any[]) {
+    if (arguments.length === 0) {
+      throw new MissingArguments();
+    }
+    if (arguments.length === 1) {
+      const arg = arguments[0];
+      if (_.isString(arg)) {
+        return this.sendText(arg);
+      }
+    }
+    throw new BadArguments();
+  }
+
   public sendText(text: string) {
+    if (typeof text === 'undefined') {
+      throw new BadArguments('Got undefined');
+    }
     const textMessage: Messages.TextMessage = {
       type: 'text',
       text: text,
