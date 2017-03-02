@@ -89,6 +89,7 @@ export default class Outgoing {
   }
 
   private _send(message: OutgoingMessage): this {
+    console.log(this.user);
     this.promise = this.promise
       .then(() => this.user._platform.send(this.user, message))
       .catch((err: Error) => {

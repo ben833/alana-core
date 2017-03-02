@@ -133,6 +133,7 @@ export default class Botler {
   }
 
   public processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void> {
+    console.log(basicUser);
     let user: User = null;
     let request: Incoming = null;
     let response: Outgoing = null;
