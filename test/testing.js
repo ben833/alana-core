@@ -1,11 +1,11 @@
 'use strict';
 
-const Botler = require('../lib/index');
+const Alana = require('../lib/index');
 const Promise = require('bluebird');
 
 describe('require run()', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 

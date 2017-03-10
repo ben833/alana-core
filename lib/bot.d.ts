@@ -6,7 +6,7 @@ import { UserMiddleware, User, BasicUser } from './types/user';
 export { TopicCollection } from './nlp/classifier';
 export { Intent, PlatformMiddleware };
 import Script from './script';
-export default class Botler {
+export default class Alana {
     debugOn: Boolean;
     private intents;
     private reducer;
@@ -34,5 +34,12 @@ export default class Botler {
     processGreeting(user: BasicUser): Promise<void>;
     processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void>;
     private getIntents(user, message);
+    /**
+     * @private
+     * @param user The user initiating the chat
+     * @param request All the incoming information about the current sessiom
+     * @param response Class used to send responses back to the user
+     * @param directCall True if being called by process(...) otherwise set to false to stop infinite loops
+     */
     private _process(user, request, response, directCall?);
 }

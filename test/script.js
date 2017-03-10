@@ -1,11 +1,11 @@
 'use strict';
 
-const Botler = require('../lib/index');
+const Alana = require('../lib/index');
 const Promise = require('bluebird');
 
 describe('only default script', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -21,9 +21,28 @@ describe('only default script', () => {
   });
 });
 
+describe('only default script with expect', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .expect.text((incoming, response) => {
+      response.sendText(incoming.message.text);
+    });
+
+  it('run', function () {
+    return tester.newTest()
+      .sendText('hi')
+      .expectText('hi')
+      .run();
+  });
+});
+
 describe('only greeting script', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -39,8 +58,8 @@ describe('only greeting script', () => {
 });
 
 describe('greeting then default', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -76,8 +95,8 @@ describe('greeting then default', () => {
 });
 
 describe('greeting -> script -> default', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -104,8 +123,8 @@ describe('greeting -> script -> default', () => {
 });
 
 describe('script loop', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -130,8 +149,8 @@ describe('script loop', () => {
 });
 
 describe('mutli script loop', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -165,8 +184,8 @@ describe('mutli script loop', () => {
 });
 
 describe('mutli script loop', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -195,6 +214,27 @@ describe('mutli script loop', () => {
       .expectText('1')
       .expectText('2')
       .expectText('3')
+      .run();
+  });
+});
+
+describe('infinite loop', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .expect.text((sessions, response) => {
+      if (response.message.text === 'ping') {
+        response.startScript(sessions.message.text)
+      }
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .sendText('pong')
+      .expectText('ping')
       .run();
   });
 });

@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as Promise from 'bluebird';
+import * as util from 'util';
 
 import { TopicCollection } from './nlp/classifier';
 import { PlatformMiddleware } from './types/platform';
@@ -19,7 +20,7 @@ import { GreetingMessage } from './types/messages/greeting';
 const DEFAULT_SCRIPT = '';
 const defaultClassifierFile = process.env.CLASSIFIER_FILE ? process.env.CLASSIFIER_FILE : `${__dirname}/../nlp/classifiers.json`;
 
-export default class Botler {
+export default class Alana {
   public debugOn: Boolean = false;
 
   private intents: Array<IntentGenerator> = [];
@@ -164,18 +165,27 @@ export default class Botler {
       .then(_.flatten)
       .then(_.compact);
   }
-
+  /**
+   * @private
+   * @param user The user initiating the chat
+   * @param request All the incoming information about the current sessiom
+   * @param response Class used to send responses back to the user
+   * @param directCall True if being called by process(...) otherwise set to false to stop infinite loops
+   */
   private _process(user: User, request: Incoming, response: Outgoing, directCall: boolean = false): Promise<void> {
     return Promise.resolve()
       .then(() => {
         const blankScript = function() { return Promise.resolve(); };
         let nextScript = blankScript;
+        // If there is a default script set that as the next script to run
         if (this._scripts[DEFAULT_SCRIPT]) {
           nextScript = function() {
-            return this.scripts[DEFAULT_SCRIPT].run(request, blankScript);
-          }.bind(this);
+              return this.scripts[DEFAULT_SCRIPT].run(request, blankScript);
+            }.bind(this);
         }
 
+        console.log(util.inspect(user));
+        console.log(util.inspect(request));
         if (request.message.type === 'greeting' && user.script === null && directCall === true) {
           if (this.greetingScript) {
             return Promise.resolve()
@@ -195,6 +205,14 @@ export default class Botler {
         } else if (this._scripts[DEFAULT_SCRIPT]) {
           return this._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, user.scriptStage);
         } else {
+          // Confused what sript to run, may be an infinite loop?
+          // If this is a greeting message just ignore it
+          if (request.message.type === 'greeting') {
+            console.log('ignoring greeting');
+            return;
+          }
+          console.log(util.inspect(user));
+          console.log(util.inspect(request));
           throw new Error('No idea how to chain the scripts');
         }
       })

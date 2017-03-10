@@ -1,10 +1,10 @@
 'use strict';
 
-const Botler = require('../lib/index');
+const Alana = require('../lib/index');
 
 describe('bad sendText', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -21,8 +21,8 @@ describe('bad sendText', () => {
 });
 
 describe('bad send', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -39,8 +39,8 @@ describe('bad send', () => {
 });
 
 describe('good sendText', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 
@@ -57,8 +57,8 @@ describe('good sendText', () => {
 });
 
 describe('good send', () => {
-  const bot = new Botler.default();
-  const tester = new Botler.TestPlatform(bot);
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
   bot.start();
 

@@ -54,7 +54,10 @@ export default class Tester {
     this.script.push(new Responses.ButtonTemplateResponse([text], button));
     return this;
   }
-
+  /**
+   * Send a string as the user
+   * @param text string to send
+   */
   public sendText(text: string): this {
     const message: TextMessage = {
       type: 'text',
@@ -92,16 +95,18 @@ export default class Tester {
   }
 
   private execute(): void {
+    console.log('execute', this.script);
     let i = this.step;
     for (i; i < this.script.length; i++) {
       const nextStep = this.script[i];
-      // console.log('step', nextStep);
+      console.log('step', nextStep);
       if (nextStep instanceof Responses.Response) {
         // console.log('wait for message from test script...');
         return;
       } else {
-        // console.log('send next step');
+        console.log('send next step');
         this.step = this.step + 1;
+        console.log(this.script[this.step]);
         this.thePromise = this.thePromise.then(() => this.testPlatfom.receive(this.userId, nextStep));
         return;
       }

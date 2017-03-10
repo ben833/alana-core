@@ -25,6 +25,10 @@ export default class Tester {
     constructor(platform: TestPlatform, userId?: string);
     expectText(allowedPhrases: Array<string> | string): this;
     expectButtons(text: string, button: Array<Button>): this;
+    /**
+     * Send a string as the user
+     * @param text string to send
+     */
     sendText(text: string): this;
     sendButtonClick(payload: string): this;
     then(...args: any[]): void;
