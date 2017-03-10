@@ -11,20 +11,18 @@ export declare enum TestState {
 }
 export default class Tester {
     userId: string;
+    private script;
     private testPlatfom;
-    private promiseChain;
-    private currentResolve;
-    private currentReject;
-    private currentExpect;
-    private startTest;
-    private timeoutReject;
+    private step;
+    private thePromise;
+    private publicPromise;
+    private resolve;
+    private reject;
     private state;
     private timeout;
     private timer;
     private checkforExtraDialogs;
     constructor(platform: TestPlatform, userId?: string);
-    private addRespone(expectChecker);
-    private addSend(message);
     expectText(allowedPhrases: Array<string> | string): this;
     expectButtons(text: string, button: Array<Button>): this;
     /**
@@ -35,7 +33,8 @@ export default class Tester {
     sendButtonClick(payload: string): this;
     then(...args: any[]): void;
     run(): Promise<any>;
-    checkForTrailingDialogs(bool?: boolean): this;
+    checkForTrailingDialogs(bool: boolean): this;
+    private execute();
     receive<M extends Message>(message: M): void;
     onError(err: Error): void;
 }

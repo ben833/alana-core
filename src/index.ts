@@ -1,10 +1,15 @@
+try {
+  // tslint:disable-next-line:no-var-requires
+  require('source-map-support').install();
+// tslint:disable-next-line:no-empty
+} catch (err) {}
+
 import { GreetingFunction } from './types/bot';
 export { Intent, Incoming, GreetingFunction } from './types/bot';
 export { User } from './types/user';
 export { PlatformMiddleware } from './types/platform';
 export { MessageTypes } from './types/message'
 import Script from './script';
-
 
 import Alana from './bot';
 export default Alana;

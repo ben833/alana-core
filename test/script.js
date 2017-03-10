@@ -226,15 +226,15 @@ describe('infinite loop', () => {
 
   bot.newScript()
     .expect.text((sessions, response) => {
-      if (response.message.text === 'ping') {
+      if (sessions.message.text === 'ping') {
         response.startScript(sessions.message.text)
       }
     })
 
   it('run', function () {
     return tester.newTest()
+      .checkForTrailingDialogs()
       .sendText('pong')
-      .expectText('ping')
       .run();
   });
 });

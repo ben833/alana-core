@@ -184,8 +184,6 @@ export default class Alana {
             }.bind(this);
         }
 
-        console.log(util.inspect(user));
-        console.log(util.inspect(request));
         if (request.message.type === 'greeting' && user.script === null && directCall === true) {
           if (this.greetingScript) {
             return Promise.resolve()
@@ -208,12 +206,11 @@ export default class Alana {
           // Confused what sript to run, may be an infinite loop?
           // If this is a greeting message just ignore it
           if (request.message.type === 'greeting') {
-            console.log('ignoring greeting');
             return;
           }
-          console.log(util.inspect(user));
-          console.log(util.inspect(request));
-          throw new Error('No idea how to chain the scripts');
+          return;
+          // throw if we require a bot to respond
+          // throw new Error('No idea how to chain the scripts');
         }
       })
       .catch((err: Error) => {

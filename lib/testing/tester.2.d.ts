@@ -22,7 +22,7 @@ export default class Tester {
     private timeout;
     private timer;
     private checkforExtraDialogs;
-    constructor(platform: TestPlatform, userId?: string);
+    constructor(platform: TestPlatform, userId?: string, checkforExtraDialogs?: boolean);
     private addRespone(expectChecker);
     private addSend(message);
     expectText(allowedPhrases: Array<string> | string): this;

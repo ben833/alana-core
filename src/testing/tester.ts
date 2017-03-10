@@ -22,36 +22,61 @@ export enum TestState {
 
 export default class Tester {
   public userId: string;
-  private script: Array<Responses.Response | IncomingMessage> = [ greetingMessage ];
   private testPlatfom: TestPlatform;
-  private step: number = 0;
-  private thePromise: Promise<void>;
-  private publicPromise: Promise<any>;
-  private resolve: () => void;
-  private reject: (err?: Error) =>  void;
+  private promiseChain: Promise<any>;
+  private currentResolve: () => void;
+  private currentReject: (err?: Error) => void;
+  private currentExpect: Responses.Response = null;
+  private startTest: () => void;
+  private timeoutReject: (err?: Error) => void;
+
   private state: TestState = TestState.notStarted;
   private timeout: number = 20;
   private timer: any;
-  private checkforExtraDialogs: boolean = true;
+  private checkforExtraDialogs: boolean = false;
 
-  constructor(platform: TestPlatform, userId: string = `test-${_.random(999999)}`) {
+  constructor(platform: TestPlatform, userId: string = `test-${_.random(999999)}`,) {
     this.testPlatfom = platform;
     this.userId = userId;
-    this.thePromise = Promise.resolve()
-      .catch((err: Error) => {
-        console.error('check failed');
-        this.reject(err);
-        this.reject = null;
+
+    this.promiseChain = new Promise((resolve, reject) => {
+      this.startTest = resolve;
+    });
+    const greeting: GreetingMessage = {
+      type: 'greeting',
+    };
+    this.addSend(greeting);
+  }
+
+  private addRespone(expectChecker: Responses.Response) {
+    const savedThis = this;
+    this.promiseChain = this.promiseChain.then(() => {
+      savedThis.currentExpect = expectChecker;
+      const aPromise = new Promise((resolve, reject) => {
+        savedThis.currentResolve = resolve;
+        savedThis.currentReject = reject;
       });
+      return aPromise;
+    });
+    return this;
+  }
+
+  private addSend(message: any) {
+    const savedThis = this;
+    this.promiseChain = this.promiseChain.then(() => {
+      savedThis.testPlatfom.receive(this.userId, message);
+      return;
+    });
+    return this;
   }
 
   public expectText(allowedPhrases: Array<string> | string): this {
-    this.script.push(new Responses.TextResponse(allowedPhrases));
+    this.addRespone(new Responses.TextResponse(allowedPhrases));
     return this;
   }
 
   public expectButtons(text: string, button: Array<Button>): this {
-    this.script.push(new Responses.ButtonTemplateResponse([text], button));
+    this.addRespone(new Responses.ButtonTemplateResponse([text], button));
     return this;
   }
   /**
@@ -63,7 +88,7 @@ export default class Tester {
       type: 'text',
       text: text,
     };
-    this.script.push(message);
+    this.addSend(message);
     return this;
   }
 
@@ -72,7 +97,7 @@ export default class Tester {
       type: 'postback',
       payload: payload,
     };
-    this.script.push(message);
+    this.addSend(message);
     return this;
   }
 
@@ -82,90 +107,43 @@ export default class Tester {
 
   public run(): Promise<any> {
     const savedThis = this;
-    return new Promise(function(resolve, reject) {
-      savedThis.resolve = resolve;
-      savedThis.reject = reject;
-      savedThis.execute();
-    });
+    if (this.checkforExtraDialogs) {
+      this.promiseChain = this.promiseChain.then(() => {
+        const waitPromise = new Promise((resolve, reject) => {
+          savedThis.timeoutReject = reject;
+        });
+        return  waitPromise.timeout(this.timeout)
+          // ignore timeout error
+          .catch(Promise.TimeoutError, (err: Error) => ({}));
+      });
+    }
+    this.startTest();
+    return this.promiseChain;
   }
 
-  public checkForTrailingDialogs(bool: boolean): this {
+  public checkForTrailingDialogs(bool: boolean = true): this {
     this.checkforExtraDialogs = bool;
     return this;
   }
 
-  private execute(): void {
-    console.log('execute', this.script);
-    let i = this.step;
-    for (i; i < this.script.length; i++) {
-      const nextStep = this.script[i];
-      console.log('step', nextStep);
-      if (nextStep instanceof Responses.Response) {
-        // console.log('wait for message from test script...');
-        return;
-      } else {
-        console.log('send next step');
-        this.step = this.step + 1;
-        console.log(this.script[this.step]);
-        this.thePromise = this.thePromise.then(() => this.testPlatfom.receive(this.userId, nextStep));
-        return;
-      }
-    }
-
-    if (this.step >= this.script.length) {
-      const savedThis = this;
-      if (this.checkforExtraDialogs === false) {
-        savedThis.resolve();
-        return;
-      }
-      this.timer = setTimeout(function() {
-        if (savedThis.state !== TestState.error) {
-          savedThis.resolve();
-        }
-      }, this.timeout);
-    }
-  }
-
   public receive<M extends Message>(message: M): void {
-    // console.log(`receive... ${this.step} of ${this.script.length}`, message);
-    if (this.step >= this.script.length) {
-      this.state = TestState.error;
-      const err = new Error(`received '${util.inspect(message)}' after script completed`);
-      if (this.reject) {
-        this.reject(err);
-        this.reject = null;
+    if (this.currentExpect) {
+      try {
+        this.currentExpect.check(message);
+        this.currentExpect = null;
+        this.currentResolve();
+      } catch (err) {
+        this.currentReject(err);
       }
       return;
     }
-
-    const currentStep = this.script[this.step];
-    if (currentStep instanceof Responses.Response) {
-      // console.log('checking...');
-      try {
-        currentStep.check(message);
-      } catch (err) {
-        // console.log('check failed...');
-        if (this.reject) {
-          this.reject(err);
-          this.reject = null;
-        }
-        return;
-      }
-      this.step = this.step + 1;
-      this.execute();
-      return;
+    console.error('Got a message but didn\'t expect one', message, this.timeoutReject);
+    if (this.timeoutReject) {
+      this.timeoutReject(new Error('Got an extra message: ' + util.inspect(message) ));
     }
   }
 
   public onError(err: Error) {
-    if (this.state === TestState.error) {
-      return;
-    }
-    if (!this.reject) {
-      console.error('no reject function yet');
-      throw new Error('no reject function yet');
-    }
-    this.state = TestState.error;
-    this.reject(err);
+    console.error('huh?, onError called');
   }
 }
