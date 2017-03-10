@@ -65,7 +65,7 @@ export default class Tester {
     const savedThis = this;
     this.promiseChain = this.promiseChain.then(() => {
       savedThis.testPlatfom.receive(this.userId, message);
-      return;
+      return null;
     });
     return this;
   }
