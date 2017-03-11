@@ -99,6 +99,7 @@ export default class Script {
   public button: FunctionShell & DotAlways;
   public expect: ExpectInput;
   public intent: FunctionShell & DotAlways;
+  public dialog: FunctionShell & DotAlways;
 
   constructor(bot: Botler, scriptName: string) {
     this.bot = bot;
@@ -110,6 +111,8 @@ export default class Script {
     this.expect.button = this._buttonExpect.bind(this);
     this.intent = this._intent.bind(this);
     this.intent.always = this._intentAlways.bind(this);
+    this.dialog = this._dialog.bind(this);
+    this.dialog.always = this._dialogAlways.bind(this);
     return this;
   }
 
@@ -157,9 +160,9 @@ export default class Script {
     return this;
   }
 
-  public dialog(dialogFunction: DialogFunction): this;
-  public dialog(name: string, dialogFunction: DialogFunction): this;
-  public dialog(): this {
+  public _dialog(dialogFunction: DialogFunction): this;
+  public _dialog(name: string, dialogFunction: DialogFunction): this;
+  public _dialog(): this {
     let name: string = null;
     let dialogFunction: DialogFunction = arguments[0];
     if (arguments.length === 2) {
@@ -267,6 +270,12 @@ export default class Script {
 
   private _intentAlways() {
     this._intent.apply(this, arguments);
+    _.last(this.dialogs).force = true;
+    return this;
+  }
+
+  private _dialogAlways() {
+    this._dialog.apply(this, arguments);
     _.last(this.dialogs).force = true;
     return this;
   }

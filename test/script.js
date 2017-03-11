@@ -238,3 +238,39 @@ describe('infinite loop', () => {
       .run();
   });
 });
+
+describe.only('begin -> always + (dialog -> script loop)', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .begin((session, response) => { 
+      response.sendText('begin') ;
+    })
+    .dialog.always((sessions, response) => {
+      response.sendText('always')
+    })
+    .dialog((sessions, response) => {
+      response.sendText('dialog')
+    })
+    .expect.text((sessions, response) => {
+      response.sendText('expect')
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('begin')
+      .expectText('always')
+      .expectText('dialog')
+      .sendText('input')
+      .debugBreak()
+      .expectText('always')
+      .expectText('expect')
+      .expectText('dialog')
+      .run();
+  });
+});
+

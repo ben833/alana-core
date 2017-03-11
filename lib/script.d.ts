@@ -41,11 +41,12 @@ export default class Script {
     button: FunctionShell & DotAlways;
     expect: ExpectInput;
     intent: FunctionShell & DotAlways;
+    dialog: FunctionShell & DotAlways;
     constructor(bot: Botler, scriptName: string);
     run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step?: number): Promise<void>;
     begin(dialogFunction: DialogFunction): this;
-    dialog(dialogFunction: DialogFunction): this;
-    dialog(name: string, dialogFunction: DialogFunction): this;
+    _dialog(dialogFunction: DialogFunction): this;
+    _dialog(name: string, dialogFunction: DialogFunction): this;
     private _expect(type, dialogFunction);
     private expectText(dialogFunction);
     catch(dialogFunction: DialogFunction): this;
@@ -53,6 +54,7 @@ export default class Script {
     private _intent(topic, dialogFunction);
     private _intent(topic, action, dialogFunction);
     private _intentAlways();
+    private _dialogAlways();
     private _button(dialogFunction);
     private _button(postback, dialogFunction);
     private _buttonAlways();

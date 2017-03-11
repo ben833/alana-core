@@ -27,6 +27,7 @@ export default class Tester {
     private addSend(message);
     expectText(allowedPhrases: Array<string> | string): this;
     expectButtons(text: string, button: Array<Button>): this;
+    debugBreak(): this;
     /**
      * Send a string as the user
      * @param text string to send

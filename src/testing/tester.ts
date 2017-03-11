@@ -9,19 +9,8 @@ import { Button } from '../types/messages/button';
 import { User } from '../types/user';
 import TestPlatform from './platform';
 
-const greetingMessage: GreetingMessage = {
-  type: 'greeting',
-};
-
-export enum TestState {
-  notStarted,
-  running,
-  error,
-  done,
-}
-
 export default class Tester {
-  public userId: string;
+  public readonly userId: string;
   private testPlatfom: TestPlatform;
   private promiseChain: Promise<any>;
   private currentResolve: () => void;
@@ -30,12 +19,10 @@ export default class Tester {
   private startTest: () => void;
   private timeoutReject: (err?: Error) => void;
 
-  private state: TestState = TestState.notStarted;
   private timeout: number = 20;
-  private timer: any;
   private checkforExtraDialogs: boolean = false;
 
-  constructor(platform: TestPlatform, userId: string = `test-${_.random(999999)}`,) {
+  constructor(platform: TestPlatform, userId: string = `test-${_.random(999999)}`) {
     this.testPlatfom = platform;
     this.userId = userId;
 
@@ -48,6 +35,9 @@ export default class Tester {
     this.addSend(greeting);
   }
 
+  /**
+   * Add a promise to the chain to expect a response from the bot
+   */
   private addRespone(expectChecker: Responses.Response) {
     const savedThis = this;
     this.promiseChain = this.promiseChain.then(() => {
@@ -61,7 +51,10 @@ export default class Tester {
     return this;
   }
 
-  private addSend(message: any) {
+  /**
+   * Add a promise to chain to send amessage to the bot
+   */
+  private addSend(message: IncomingMessage) {
     const savedThis = this;
     this.promiseChain = this.promiseChain.then(() => {
       savedThis.testPlatfom.receive(this.userId, message);
@@ -70,18 +63,40 @@ export default class Tester {
     return this;
   }
 
+  /**
+   * Wait to recieve a text message from bot
+   */
   public expectText(allowedPhrases: Array<string> | string): this {
     this.addRespone(new Responses.TextResponse(allowedPhrases));
     return this;
   }
 
+  /**
+   * Wait to recieve a set of buttons from bot
+   * @todo create a better inirializer to create button object
+   * @param text Text for the button message to have
+   * @param button Array of raw button strctures
+   */
   public expectButtons(text: string, button: Array<Button>): this {
     this.addRespone(new Responses.ButtonTemplateResponse([text], button));
     return this;
   }
   /**
-   * Send a string as the user
-   * @param text string to send
+   * During development cam be used to pause the debuger and check input
+   */
+  public debugBreak() {
+    const savedThis = this;
+    this.promiseChain = this.promiseChain.then(function(): void {
+      if (process.env.NODE_ENV !== 'production') {
+      // tslint:disable-next-line:no-debugger
+        debugger;
+      }
+      return null;
+    }.bind(savedThis));
+    return this;
+  }
+  /**
+   * Send a string as the user to the bot
    */
   public sendText(text: string): this {
     const message: TextMessage = {
@@ -92,6 +107,9 @@ export default class Tester {
     return this;
   }
 
+  /**
+   *  Send a postback button click as the user to the bot with specififed payload
+   */
   public sendButtonClick(payload: string): this {
     const message: PostbackMessage = {
       type: 'postback',
@@ -101,10 +119,18 @@ export default class Tester {
     return this;
   }
 
+  /**
+   * Guard to protect user from forgetting to call run() at end of test
+   * @todo automatically call run()
+   * @private
+   */
   public then(...args: any[]) {
     throw new Error('Need to call .run() at end of script');
   }
 
+  /**
+   * Called to start test
+   */
   public run(): Promise<any> {
     const savedThis = this;
     if (this.checkforExtraDialogs) {
@@ -121,11 +147,18 @@ export default class Tester {
     return this.promiseChain;
   }
 
+  /**
+   * If set to true, will wait for any extra messages not in test script and fail test
+   */
   public checkForTrailingDialogs(bool: boolean = true): this {
     this.checkforExtraDialogs = bool;
     return this;
   }
 
+  /**
+   * Private function to recieve messages from the test platform
+   * @private
+   */
   public receive<M extends Message>(message: M): void {
     if (this.currentExpect) {
       try {
@@ -143,7 +176,12 @@ export default class Tester {
     }
   }
 
+  /**
+   * Private function to recieve errors from test platform
+   * @private
+   */
   public onError(err: Error) {
     console.error('huh?, onError called');
+    throw err;
   }
 }
