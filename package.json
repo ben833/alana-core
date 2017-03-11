@@ -1,6 +1,6 @@
 {
   "name": "@alana/core",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Bot framework for contextual chatbots",
   "main": "lib/index.js",
   "typings": "lib/index",
@@ -22,16 +22,20 @@
   "author": "Adam Juhasz",
   "license": "MIT",
   "dependencies": {
-    "alana-intents": "github:alana-bot/intents",
+    "@alana/intents": "1.x",
     "bluebird": "^3.4.1",
     "lodash": "^4.11.0",
     "natural": "^0.4.0"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.0",
+    "@types/lodash": "^4.14.55",
+    "@types/natural": "^0.2.31",
     "chai": "^3.5.0",
     "mocha": "^2.5.3",
     "source-map-support": "^0.4.11",
-    "tslint": "^4.3.1"
+    "tslint": "^4.3.1",
+    "typescript": "^2.2.1"
   },
   "preferGlobal": false
 }

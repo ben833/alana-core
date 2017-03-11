@@ -15,7 +15,7 @@ export interface Topics {
   places: Array<any>;
 }
 
-const intentLocation: string = process.env.INTENT_LOCATION ? process.env.INTENT_LOCATION : path.dirname(require.resolve('alana-intents'));
+const intentLocation: string = process.env.INTENT_LOCATION ? process.env.INTENT_LOCATION : path.dirname(require.resolve('@alana/intents'));
 const locations: locationMap = loadLocations(`${intentLocation}/locations`);
 const dateClassifiers: Classifiers = GenerateClassifier([`${intentLocation}/dates`]);
 

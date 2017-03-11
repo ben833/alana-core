@@ -1,5 +1,5 @@
 try {
-  // tslint:disable-next-line:no-var-requires
+// tslint:disable-next-line:no-var-requires
   require('source-map-support').install();
 // tslint:disable-next-line:no-empty
 } catch (err) {}
