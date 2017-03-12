@@ -6,7 +6,7 @@ import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';
 import * as _ from 'lodash';
-import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons } from './script';
+import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons, GotoDialogException } from './script';
 import { MissingArguments, BadArguments } from './errors';
 
 export default class Outgoing {
@@ -28,6 +28,10 @@ export default class Outgoing {
 
   public endScript() {
     throw new EndScriptException(EndScriptReasons.Called);
+  }
+
+  public goto(dialogName: string): void {
+    throw new GotoDialogException(dialogName);
   }
 
   public startTyping() {

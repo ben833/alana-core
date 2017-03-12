@@ -20,6 +20,10 @@ export declare class EndScriptException extends Error {
     reason: EndScriptReasons;
     constructor(reason: EndScriptReasons);
 }
+export declare class GotoDialogException extends Error {
+    dialogName: string;
+    constructor(dialogName: string);
+}
 export declare type FunctionShell = {
     (...args: any[]): (...args: any[]) => this;
 };
@@ -33,6 +37,9 @@ export declare type ExpectInput = {
     text: (dialogFunction: DialogFunction) => this;
     button: ExpectButton | ExpectButtonWith;
 };
+export declare type DialogHandler = DialogNamed | DialogSimple;
+export declare type DialogSimple = (fn: DialogFunction) => Script;
+export declare type DialogNamed = (name: string, fn: DialogFunction) => Script;
 export default class Script {
     private dialogs;
     private name;
@@ -41,8 +48,9 @@ export default class Script {
     button: FunctionShell & DotAlways;
     expect: ExpectInput;
     intent: FunctionShell & DotAlways;
-    dialog: FunctionShell & DotAlways;
+    dialog: DialogHandler & DotAlways;
     constructor(bot: Botler, scriptName: string);
+    readonly length: number;
     run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step?: number): Promise<void>;
     begin(dialogFunction: DialogFunction): this;
     _dialog(dialogFunction: DialogFunction): this;

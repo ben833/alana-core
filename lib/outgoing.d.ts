@@ -12,6 +12,7 @@ export default class Outgoing {
     constructor(bot: Botler, user: User);
     startScript(name?: string, scriptArguments?: any): void;
     endScript(): void;
+    goto(dialogName: string): void;
     startTyping(): void;
     endTyping(): void;
     send(...args: any[]): this;

@@ -15,6 +15,7 @@ export default class Alana {
     private _scripts;
     private greetingScript;
     onErrorScript: DialogFunction;
+    private serializedMessages;
     constructor(classifierFile?: string);
     addIntent(newIntent: IntentGenerator): this;
     unshiftIntent(newIntent: IntentGenerator): this;
@@ -31,8 +32,8 @@ export default class Alana {
     createEmptyUser(defaults?: any): User;
     start(): void;
     stop(): void;
-    processGreeting(user: BasicUser): Promise<void>;
     processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void>;
+    private _processMessage(basicUser, message);
     private getIntents(user, message);
     /**
      * @private

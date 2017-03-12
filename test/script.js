@@ -122,7 +122,7 @@ describe('greeting -> script -> default', () => {
   });
 });
 
-describe('script loop', () => {
+describe('script loop in default', () => {
   const bot = new Alana.default();
   const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
@@ -131,9 +131,11 @@ describe('script loop', () => {
   bot.newScript()
     .begin((incoming, response) => {
       response.sendText('begin');
+      return null;
     })
     .dialog((incoming, response) => {
       response.sendText('hi');
+      return null;
     });
 
   it('run', function () {
@@ -239,7 +241,7 @@ describe('infinite loop', () => {
   });
 });
 
-describe.only('begin -> always + (dialog -> script loop)', () => {
+describe('begin -> always + (dialog -> script loop)', () => {
   const bot = new Alana.default();
   const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
@@ -248,15 +250,66 @@ describe.only('begin -> always + (dialog -> script loop)', () => {
   bot.newScript()
     .begin((session, response) => { 
       response.sendText('begin') ;
+      return null
     })
-    .dialog.always((sessions, response) => {
+    .dialog.always('always', (sessions, response) => {
+      // 0
       response.sendText('always')
+      return null
     })
-    .dialog((sessions, response) => {
-      response.sendText('dialog')
+    .dialog('start', (sessions, response) => {
+      // 1
+      response.sendText('dialog');
+      return null;
     })
     .expect.text((sessions, response) => {
+      // 2
       response.sendText('expect')
+      response.goto('start');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('begin')
+      .expectText('always')
+      .expectText('dialog')
+      // .debugBreak()
+      .sendText('input')
+      .expectText('always')
+      .expectText('expect')
+      .expectText('always')
+      .expectText('dialog')
+      .run();
+  });
+});
+
+describe('stop test', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .begin((session, response) => { 
+      response.sendText('begin') ;
+      return null
+    })
+    .dialog.always('always', (sessions, response) => {
+      response.sendText('always')
+      return null
+    })
+    .dialog('start', (sessions, response, stop) => {
+      response.sendText('dialog');
+      stop()
+    })
+    .dialog('second', (sessions, response, stop) => {
+      response.sendText('second');
+    })
+    .expect.text((sessions, response) => {
+      // 2
+      response.sendText('expect')
+      response.goto('start');
     })
 
   it('run', function () {
@@ -266,11 +319,8 @@ describe.only('begin -> always + (dialog -> script loop)', () => {
       .expectText('always')
       .expectText('dialog')
       .sendText('input')
-      .debugBreak()
       .expectText('always')
-      .expectText('expect')
       .expectText('dialog')
       .run();
   });
 });
-

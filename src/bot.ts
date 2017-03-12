@@ -13,7 +13,7 @@ export { Intent, PlatformMiddleware };
 import MemoryStorage from './storage/memory';
 import defaultReducer from './default-reducer';
 import NLPEngine from './nlp/nlp';
-import Script, { EndScriptException, stopFunction, StopException, StopScriptReasons} from './script';
+import Script, { EndScriptException, EndScriptReasons, stopFunction, StopException, StopScriptReasons} from './script';
 import Outgoing from './outgoing';
 import { GreetingMessage } from './types/messages/greeting';
 
@@ -31,6 +31,7 @@ export default class Alana {
   private _scripts: { [key: string]: Script } = {};
   private greetingScript: GreetingFunction;
   public onErrorScript: DialogFunction = defaultErrorScript;
+  private serializedMessages: { [userid: string]: Promise<void> } = {};
 
   constructor(classifierFile: string = defaultClassifierFile) {
     const engine = new NLPEngine(classifierFile);
@@ -126,14 +127,15 @@ export default class Alana {
     this.platforms.forEach(platform => platform.stop());
   }
 
-  public processGreeting(user: BasicUser): Promise<void> {
-    const greetingMessage: GreetingMessage = {
-      type: 'greeting',
-    };
-    return this.processMessage(user, greetingMessage);
+  public processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void> {
+    // serialize messages so they don't trample over each other
+    if (!this.serializedMessages[basicUser.id]) {
+      this.serializedMessages[basicUser.id] = Promise.resolve();
+    }
+    return this.serializedMessages[basicUser.id] = this.serializedMessages[basicUser.id].then(() => this._processMessage(basicUser, message));
   }
 
-  public processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void> {
+  private _processMessage(basicUser: BasicUser, message: IncomingMessage): Promise<void> {
     let user: User = null;
     let request: Incoming = null;
     let response: Outgoing = null;
@@ -156,7 +158,9 @@ export default class Alana {
         };
         return this._process(user, request, response, true);
       })
-      .then(() => this.userMiddleware.saveUser(user))
+      .then(() => {
+        return this.userMiddleware.saveUser(user);
+      })
       .then(() => { return; });
   }
 
@@ -173,24 +177,27 @@ export default class Alana {
    * @param directCall True if being called by process(...) otherwise set to false to stop infinite loops
    */
   private _process(user: User, request: Incoming, response: Outgoing, directCall: boolean = false): Promise<void> {
+    const savedThis = this;
     return Promise.resolve()
       .then(() => {
-        const blankScript = function() { return Promise.resolve(); };
-        let nextScript = blankScript;
+        const blankScript = function() {
+          throw new EndScriptException(EndScriptReasons.Reached);
+        };
+        let nextScript: () => Promise<any> = blankScript;
         // If there is a default script set that as the next script to run
-        if (this._scripts[DEFAULT_SCRIPT]) {
+        if (savedThis._scripts[DEFAULT_SCRIPT]) {
           nextScript = function() {
-              return this.scripts[DEFAULT_SCRIPT].run(request, blankScript);
-            }.bind(this);
+              return savedThis._scripts[DEFAULT_SCRIPT].run(request, response, blankScript);
+            };
         }
 
         if (request.message.type === 'greeting' && user.script === null && directCall === true) {
-          if (this.greetingScript) {
+          if (savedThis.greetingScript) {
             return Promise.resolve()
-              .then(() => this.greetingScript(user, response))
+              .then(() => savedThis.greetingScript(user, response))
               .then(() => {
-                if (this._scripts[DEFAULT_SCRIPT]) {
-                  return this._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, -1);
+                if (savedThis._scripts[DEFAULT_SCRIPT]) {
+                  return savedThis._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, -1);
                 }
               });
           } else {
@@ -199,9 +206,13 @@ export default class Alana {
           }
         }
         if (user.script != null && user.script !== DEFAULT_SCRIPT && this._scripts[user.script]) {
-          return this._scripts[user.script].run(request, response, nextScript);
-        } else if (this._scripts[DEFAULT_SCRIPT]) {
-          return this._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, user.scriptStage);
+          return savedThis._scripts[user.script].run(request, response, nextScript);
+        } else if (savedThis._scripts[DEFAULT_SCRIPT]) {
+          const defaultScript = savedThis._scripts[DEFAULT_SCRIPT];
+          if (request.user.scriptStage >= defaultScript.length) {
+            request.user.scriptStage = 0;
+          }
+          return savedThis._scripts[DEFAULT_SCRIPT].run(request, response, blankScript, user.scriptStage);
         } else {
           // Confused what sript to run, may be an infinite loop?
           // If this is a greeting message just ignore it
@@ -221,16 +232,16 @@ export default class Alana {
           user.script = null;
           user.scriptStage = -1;
           user.scriptArguments = {};
-          return this._process(user, request, response);
+          return savedThis._process(user, request, response);
         } else if (err instanceof StopException) {
           if (err.reason === StopScriptReasons.NewScript) {
-            return this._process(user, request, response);
+            return savedThis._process(user, request, response);
           }
           return;
         } else {
           console.error('error caught');
           console.error(err);
-          return this.onErrorScript(request, response, stopFunction);
+          return savedThis.onErrorScript(request, response, stopFunction);
         }
       });
   }

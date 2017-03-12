@@ -73,6 +73,16 @@ export class EndScriptException extends Error {
   }
 }
 
+export class GotoDialogException extends Error {
+  public dialogName: string;
+  constructor(dialogName: string) {
+    super(`Go to script named ${dialogName}`);
+    // Set the prototype explicitly.
+    (<any> Object).setPrototypeOf(this, GotoDialogException.prototype);
+    this.dialogName = dialogName;
+  }
+}
+
 export type FunctionShell = {
   (...args: any[]): (...args: any[]) => this;
 };
@@ -90,6 +100,10 @@ export type ExpectInput = {
   button: ExpectButton | ExpectButtonWith;
 };
 
+export type DialogHandler = DialogNamed | DialogSimple;
+export type DialogSimple = (fn: DialogFunction) => Script;
+export type DialogNamed = (name: string, fn: DialogFunction) => Script;
+
 export default class Script {
   private dialogs: Array<DialogShell> = [];
   private name: string;
@@ -99,7 +113,7 @@ export default class Script {
   public button: FunctionShell & DotAlways;
   public expect: ExpectInput;
   public intent: FunctionShell & DotAlways;
-  public dialog: FunctionShell & DotAlways;
+  public dialog: DialogHandler & DotAlways;
 
   constructor(bot: Botler, scriptName: string) {
     this.bot = bot;
@@ -114,6 +128,10 @@ export default class Script {
     this.dialog = this._dialog.bind(this);
     this.dialog.always = this._dialogAlways.bind(this);
     return this;
+  }
+
+  get length(): number {
+    return this.dialogs.length;
   }
 
   public run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step: number = incoming.user.scriptStage) {
@@ -141,7 +159,9 @@ export default class Script {
 
     const runUnforced = () => {
       return Promise.resolve()
-        .then(() => this.callScript(incoming, outgoing, validDialogs, nextScript, step));
+        .then(() => {
+          return this.callScript(incoming, outgoing, validDialogs, nextScript, Math.max(step, 0));
+        });
     };
     return Promise.resolve()
       .then(() => {
@@ -152,7 +172,9 @@ export default class Script {
           }
         }
       })
-      .then(() => this.callScript(incoming, outgoing, forcedDialogs, runUnforced, 0));
+      .then(() => {
+        return this.callScript(incoming, outgoing, forcedDialogs, runUnforced, 0);
+      });
   }
 
   public begin(dialogFunction: DialogFunction): this {
@@ -390,26 +412,30 @@ export default class Script {
         return currentScript(request, response, stopFunction);
       })
       .then(() => {
-        if (currentDialog.type === 'expect') {
-          request.message._eaten = true;
-        }
-      })
-      .then(() => {
-        if (nextDialogs.length === 0) {
-          throw new EndScriptException(EndScriptReasons.Reached);
-        }
-        // console.log('thisStep', thisStep, Math.max(request.user.scriptStage, thisStep + 1));
         request.user.scriptStage = Math.max(request.user.scriptStage, thisStep + 1);
+        if (nextDialogs.length === 0) {
+          // throw new EndScriptException(EndScriptReasons.Reached);
+          return nextScript();
+        }
         const dialog = _.head(nextDialogs);
-        if (dialog.type === 'dialog' || dialog.type === 'intent') {
+        if (dialog.type === 'dialog' || dialog.type === 'intent') { // @todo change to dialog.forced??
           return __this.callScript(request, response, nextDialogs, nextScript, thisStep + 1);
         }
       })
       .catch((err: Error) => {
+        if (err instanceof GotoDialogException) {
+          for (let i = 0; i < this.dialogs.length; i++) {
+            const dialog = this.dialogs[i];
+            if (dialog.type === 'dialog' && dialog.name === err.dialogName) {
+              request.user.scriptStage = i;
+              return this.run(request, response, nextScript, i);
+            }
+          }
+        }
         if ( err instanceof StopException
-        && currentDialog.type === 'expect'
-        && currentDialog.expect !== null
-        && currentDialog.expect.catch !== null ) {
+           && currentDialog.type === 'expect'
+           && currentDialog.expect !== null
+           && currentDialog.expect.catch !== null ) {
           return Promise.resolve()
             .then(() => currentDialog.expect.catch(request, response, stopFunction))
             .then(() => stopFunction(StopScriptReasons.ExpectCaught));
