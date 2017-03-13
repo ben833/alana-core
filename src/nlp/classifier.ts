@@ -69,15 +69,17 @@ export function GenerateClassifier(topicsToLoad: Array<filename | TopicCollectio
 
   topicsToLoad
     .filter(directory => typeof directory === 'string')
-    .filter((directory: string) => onlyDirectories(directory))
-    .forEach((directory: string) =>
+    // .filter((directory: string) => onlyDirectories(directory))
+    .forEach((directory: string) => {
+      // console.log(directory);
       fs.readdirSync(directory)
-        .filter((aDirectory: string) => onlyDirectories(aDirectory))
+        // .filter((aDirectory: string) => onlyDirectories(aDirectory))
         .forEach(topic => {
+          // console.log(topic);
           topics.push(readInTopic(topic, `${directory}/${topic}`));
-        })
-    );
-  // console.log('t:', util.inspect(topics, {depth:null}));
+        });
+    });
+  // console.log('t:', util.inspect(topics, { depth: null }));
   const topicPhrases = topics.map((topic: TopicCollection) => _.flatten(topic.actions.map(action => action.phrases)));
   const allPhrases: string[] = _.chain(topicPhrases).flatten().flatten().value() as Array<string>;
   // console.log('ap:', util.inspect(allPhrases, {depth:null}));

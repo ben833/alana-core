@@ -13,7 +13,7 @@ export { Intent, PlatformMiddleware };
 import MemoryStorage from './storage/memory';
 import defaultReducer from './default-reducer';
 import NLPEngine from './nlp/nlp';
-import Script, { EndScriptException, EndScriptReasons, stopFunction, StopException, StopScriptReasons} from './script';
+import Script, { EndScriptException, EndScriptReasons, stopFunction, StopException, StopScriptReasons} from './scripting/script';
 import Outgoing from './outgoing';
 import { GreetingMessage } from './types/messages/greeting';
 

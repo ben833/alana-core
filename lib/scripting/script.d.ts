@@ -1,8 +1,9 @@
 /// <reference types="bluebird" />
 import * as Promise from 'bluebird';
-import { Incoming, DialogFunction } from './types/bot';
-import Outgoing from './outgoing';
-import Botler from './bot';
+import { Incoming, DialogFunction } from '../types/bot';
+import { MinimalScriptActions, ExpectInput, IntentAlways, DialogInput, ButtonInput } from '../types/script';
+import Outgoing from '../outgoing';
+import Botler from '../bot';
 export declare enum StopScriptReasons {
     Called = 0,
     NewScript = 1,
@@ -24,51 +25,34 @@ export declare class GotoDialogException extends Error {
     dialogName: string;
     constructor(dialogName: string);
 }
-export declare type FunctionShell = {
-    (...args: any[]): (...args: any[]) => this;
-};
-export declare type DotAlways = {
-    always: (...args: any[]) => this;
-};
-export declare type ExpectButton = (dialogFunction: DialogFunction) => this;
-export declare type ExpectButtonWith = (postback: string, dialogFunction: DialogFunction) => this;
-export declare type ExpectInput = {
-    (...args: any[]): (...args: any[]) => this;
-    text: (dialogFunction: DialogFunction) => this;
-    button: ExpectButton | ExpectButtonWith;
-};
-export declare type DialogHandler = DialogNamed | DialogSimple;
-export declare type DialogSimple = (fn: DialogFunction) => Script;
-export declare type DialogNamed = (name: string, fn: DialogFunction) => Script;
-export default class Script {
+export default class Script implements MinimalScriptActions {
     private dialogs;
     private name;
     private bot;
     private _begin;
-    button: FunctionShell & DotAlways;
     expect: ExpectInput;
-    intent: FunctionShell & DotAlways;
-    dialog: DialogHandler & DotAlways;
+    intent: IntentAlways<this>;
+    dialog: DialogInput;
+    button: ButtonInput;
     constructor(bot: Botler, scriptName: string);
+    private expectText();
+    private expectButton();
+    private expectIntent();
+    private expectMatch();
+    private expectCatch();
+    private completedExpect(fn);
     readonly length: number;
     run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step?: number): Promise<void>;
     begin(dialogFunction: DialogFunction): this;
     _dialog(dialogFunction: DialogFunction): this;
     _dialog(name: string, dialogFunction: DialogFunction): this;
-    private _expect(type, dialogFunction);
-    private expectText(dialogFunction);
-    catch(dialogFunction: DialogFunction): this;
-    private _intent(dialogFunction);
+    private _dialogAlways();
     private _intent(topic, dialogFunction);
     private _intent(topic, action, dialogFunction);
     private _intentAlways();
-    private _dialogAlways();
     private _button(dialogFunction);
     private _button(postback, dialogFunction);
     private _buttonAlways();
-    private _buttonExpect(dialogFunction);
-    private _buttonExpect(postback, dialogFunction);
-    private filterDialog(topic, action);
     private callScript(request, response, dialogs, nextScript, thisStep);
 }
 export declare function stopFunction(reason?: StopScriptReasons): void;

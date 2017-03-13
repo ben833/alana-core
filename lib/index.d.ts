@@ -3,7 +3,7 @@ export { Intent, Incoming, GreetingFunction } from './types/bot';
 export { User } from './types/user';
 export { PlatformMiddleware } from './types/platform';
 export { MessageTypes } from './types/message';
-import Script from './script';
+import Script from './scripting/script';
 import Alana from './bot';
 export default Alana;
 import TestPlatform from './testing/platform';

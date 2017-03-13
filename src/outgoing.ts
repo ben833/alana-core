@@ -6,7 +6,7 @@ import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';
 import * as _ from 'lodash';
-import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons, GotoDialogException } from './script';
+import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons, GotoDialogException } from './scripting/script';
 import { MissingArguments, BadArguments } from './errors';
 
 export default class Outgoing {

@@ -5,7 +5,7 @@ import { Intent, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunc
 import { UserMiddleware, User, BasicUser } from './types/user';
 export { TopicCollection } from './nlp/classifier';
 export { Intent, PlatformMiddleware };
-import Script from './script';
+import Script from './scripting/script';
 export default class Alana {
     debugOn: Boolean;
     private intents;
