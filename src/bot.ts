@@ -4,7 +4,7 @@ import * as util from 'util';
 
 import { TopicCollection } from './nlp/classifier';
 import { PlatformMiddleware } from './types/platform';
-import { Intent, Incoming, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, StopFunction } from './types/bot';
+import { Intent, Incoming, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, StopFunction, Logger } from './types/bot';
 import { UserMiddleware, User, BasicUser } from './types/user';
 
 export { TopicCollection } from './nlp/classifier';
@@ -32,6 +32,8 @@ export default class Alana {
   private greetingScript: GreetingFunction;
   public onErrorScript: DialogFunction = defaultErrorScript;
   private serializedMessages: { [userid: string]: Promise<void> } = {};
+  // tslint:disable-next-line:variable-name
+  private _logger: Logger = console;
 
   constructor(classifierFile: string = defaultClassifierFile) {
     const engine = new NLPEngine(classifierFile);
@@ -93,6 +95,15 @@ export default class Alana {
   public turnOnDebug() {
     this.debugOn = true;
     return this;
+  }
+
+  public setLogger(logger: Logger) {
+    this._logger = logger;
+    return this;
+  }
+
+  get logger() {
+    return this._logger;
   }
 
   public createEmptyIntent(): Intent {
@@ -239,8 +250,8 @@ export default class Alana {
           }
           return;
         } else {
-          console.error('error caught');
-          console.error(err);
+          this.logger.error('error caught');
+          this.logger.error(err);
           return savedThis.onErrorScript(request, response, stopFunction);
         }
       });

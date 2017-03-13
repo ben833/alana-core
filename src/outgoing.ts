@@ -96,7 +96,7 @@ export default class Outgoing {
     this.promise = this.promise
       .then(() => this.user._platform.send(this.user, message))
       .catch((err: Error) => {
-        console.error('Error sending message to user', err);
+        this.bot.logger.error('Error sending message to user', err);
       });
     return this;
   }

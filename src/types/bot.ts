@@ -40,3 +40,10 @@ export interface SkillFunction {
 export interface ReducerFunction {
   (intents: Array<Intent>, user?: User): Promise<Intent>;
 }
+
+export interface Logger {
+    error(message?: any, ...optionalParams: any[]): void;
+    info(message?: any, ...optionalParams: any[]): void;
+    log(message?: any, ...optionalParams: any[]): void;
+    warn(message?: any, ...optionalParams: any[]): void;
+}
