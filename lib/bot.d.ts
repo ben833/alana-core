@@ -1,7 +1,7 @@
 /// <reference types="bluebird" />
 import * as Promise from 'bluebird';
 import { PlatformMiddleware } from './types/platform';
-import { Intent, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction } from './types/bot';
+import { Intent, IncomingMessage, IntentGenerator, ReducerFunction, GreetingFunction, DialogFunction, Logger } from './types/bot';
 import { UserMiddleware, User, BasicUser } from './types/user';
 export { TopicCollection } from './nlp/classifier';
 export { Intent, PlatformMiddleware };
@@ -16,6 +16,7 @@ export default class Alana {
     private greetingScript;
     onErrorScript: DialogFunction;
     private serializedMessages;
+    private _logger;
     constructor(classifierFile?: string);
     addIntent(newIntent: IntentGenerator): this;
     unshiftIntent(newIntent: IntentGenerator): this;
@@ -28,6 +29,8 @@ export default class Alana {
     addPlatform(platform: PlatformMiddleware): this;
     addErrorHandler(dialog: DialogFunction): this;
     turnOnDebug(): this;
+    setLogger(logger: Logger): this;
+    readonly logger: Logger;
     createEmptyIntent(): Intent;
     createEmptyUser(defaults?: any): User;
     start(): void;
