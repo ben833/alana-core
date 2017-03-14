@@ -178,7 +178,7 @@ export default class Alana {
   private getIntents(user: User, message: IncomingMessage): Promise<Array<Intent>> {
     return Promise.map(this.intents, intent => intent.getIntents(message, user))
       .then(_.flatten)
-      .then(_.compact);
+      .then((anArray: Intent[]) => _.compact<Intent>(anArray));
   }
   /**
    * @private
