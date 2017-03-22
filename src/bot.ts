@@ -151,18 +151,7 @@ export default class Alana {
     let request: Incoming = null;
     let response: Outgoing = null;
     return this.userMiddleware.getUser(basicUser)
-      .catch((err: Error) => {
-        const newUser = _.merge(this.createEmptyUser(), basicUser);
-        if (message.type === 'greeting') {
-          return this.userMiddleware.saveUser(newUser);
-        }
-        const greeting: GreetingMessage = {
-          type: 'greeting',
-        };
-        return this.userMiddleware.saveUser(newUser)
-          .then(() => this._processMessage(basicUser, greeting))
-          .then(() => newUser);
-      })
+      .catch((err: Error) => _.merge(this.createEmptyUser(), basicUser))
       .then(completeUser => {
         completeUser._platform = basicUser._platform;
         completeUser.conversation = completeUser.conversation.concat(message);
