@@ -1,7 +1,7 @@
 /// <reference types="bluebird" />
 import { User } from './types/user';
 import * as Messages from './types/message';
-import ButtonClass from './outgoing/button';
+import ButtonClass from './outgoing-class/button';
 import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';

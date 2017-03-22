@@ -329,7 +329,7 @@ describe('text trivia', () => {
   });
 });
 
-describe.only('button trivia', () => {
+describe('button trivia', () => {
   const trivia = {
     'history': [ // this is a trivia topic
       { q: 'Question 1', // this is the question we will ask the user
