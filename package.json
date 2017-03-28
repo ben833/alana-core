@@ -1,13 +1,13 @@
 {
   "name": "@alana/core",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "Bot framework for contextual chatbots",
   "main": "lib/index.js",
   "typings": "lib/index",
   "scripts": {
     "build": "tsc",
     "test": "npm run build && mocha",
-    "prepublish": "npm run build && node lib/nlp/compile"
+    "prepublish": "npm test && node lib/nlp/compile"
   },
   "keywords": [
     "bot",
@@ -22,7 +22,7 @@
   "author": "Adam Juhasz",
   "license": "MIT",
   "dependencies": {
-    "@alana/intents": "1.x",
+    "@alana/intents": "2.x",
     "bluebird": "^3.4.1",
     "lodash": "^4.11.0",
     "natural": "^0.4.0"
