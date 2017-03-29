@@ -42,6 +42,7 @@ export default class Outgoing {
       throw new Error('not implemented');
   }
 
+  public send(text: string): this;
   public send(...args: any[]) {
     if (arguments.length === 0) {
       throw new MissingArguments();
@@ -74,14 +75,12 @@ export default class Outgoing {
     return this._send(message);
   }
 
-  public sendButtons(): ButtonClass;
-  public sendButtons(message: Messages.ButtonMessage): this;
-  public sendButtons() {
-    if (arguments.length === 0) {
-      return new ButtonClass(this);
-    } else {
-      return this._send(arguments[0]);
-    }
+  public sendButtons(message: Messages.ButtonMessage): this {
+    return this._send(message);
+  }
+
+  public createButtons(): ButtonClass {
+    return new ButtonClass(this);
   }
 
   public sendAudio(url: string) {

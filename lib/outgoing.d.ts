@@ -15,11 +15,11 @@ export default class Outgoing {
     goto(dialogName: string): void;
     startTyping(): void;
     endTyping(): void;
-    send(...args: any[]): this;
+    send(text: string): this;
     sendText(text: string): this;
     sendImage(url: string): this;
-    sendButtons(): ButtonClass;
     sendButtons(message: Messages.ButtonMessage): this;
+    createButtons(): ButtonClass;
     sendAudio(url: string): this;
     private _send(message);
 }

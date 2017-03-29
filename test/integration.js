@@ -357,7 +357,7 @@ describe('button trivia', () => {
 
   bot.newScript() // 
     .dialog('start', (session, response, stop) => {
-      const buttons = response.sendButtons().text('Pick a trivia topic');
+      const buttons = response.createButtons().text('Pick a trivia topic');
       const topics = Object.keys(trivia).forEach(topic => {
         buttons.addButton('postback', topic, topic);
       })
@@ -388,7 +388,7 @@ describe('button trivia', () => {
       .dialog('start', (session, response, stop) => {
         const question = trivia[topic][session.user.question_number];
         response.sendText(question.q)
-        const buttons = response.sendButtons().text('Is it:');
+        const buttons = response.createButtons().text('Is it:');
         question.w.concat(question.c).forEach(answer => {
           buttons.addButton('postback', answer, answer);
         });
