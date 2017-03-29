@@ -131,7 +131,7 @@ export default class Script implements MinimalScriptActions {
   }
 
   public run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step: number = incoming.user.scriptStage) {
-    const topic = incoming.intent.topic;
+    const topic = incoming.intent.domain;
     const action = incoming.intent.action;
 
     const top = _.slice(this.dialogs, 0, Math.max(0, step));

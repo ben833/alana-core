@@ -15,13 +15,13 @@ export default class Intent extends DialogAction {
   public process(request: Incoming) {
     if (this.action === null) {
       // only the domain matters
-      if (request.intent.topic === this.domain) {
+      if (request.intent.domain === this.domain) {
         return this.dialog;
       } else {
         return null;
       }
     } else {
-       if (request.intent.topic === this.domain && request.intent.action === this.action) {
+       if (request.intent.domain === this.domain && request.intent.action === this.action) {
          return this.dialog;
        } else {
          return null;

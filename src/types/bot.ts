@@ -5,7 +5,7 @@ import Outgoing from '../outgoing';
 
 export interface Intent {
   action: string;
-  topic: string;
+  domain: string;
   details: {
     confidence: number;
   } | any;

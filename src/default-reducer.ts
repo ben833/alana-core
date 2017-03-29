@@ -14,7 +14,7 @@ export default function defaultReducer(intents: Array<Intent>): Promise<Intent> 
           details: {
             confidence: 0,
           },
-          topic: null,
+          domain: null,
         };
         return unknownIntent;
       }

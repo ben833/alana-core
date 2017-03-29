@@ -324,3 +324,28 @@ describe('stop test', () => {
       .run();
   });
 });
+
+describe.skip('default script - dialog -> expect loop', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .dialog((sessions, response, stop) => {
+      response.sendText('dialog');
+    })
+    .expect.text((sessions, response) => {
+      response.sendText('expect')
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('dialog')
+      .sendText('input')
+      .expectText('expect')
+      .expectText('dialog')
+      .run();
+  });
+});

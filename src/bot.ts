@@ -112,7 +112,7 @@ export default class Alana {
       details: {
         confidence: 0,
       },
-      topic: null,
+      domain: null,
     };
   }
 

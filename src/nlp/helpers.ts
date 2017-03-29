@@ -32,7 +32,7 @@ export function grabTopics(text: string): Promise<Intent> {
       specialWords: specials,
       locations: locatonExtractor(text),
     },
-    topic: 'details',
+    domain: 'details',
   };
 
   // if (this && this.debugOn) { console.log('details intent', util.inspect(intent, { depth: null })); };

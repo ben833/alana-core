@@ -62,7 +62,7 @@ export function baseBotTextNLP(text: string): Promise<Array<Intent>> {
       details: {
         confidence: intent.value,
       },
-      topic: intent.topic,
+      domain: intent.topic,
     };
 
     return baseIntent;
@@ -85,7 +85,7 @@ export function locationNLP(text: string): Promise<Array<Intent>> {
     details: {
       confidence: getLocationConfidence(text, city),
     },
-    topic: 'locations',
+    domain: 'locations',
   };
 
   return Promise.resolve([intent]);
