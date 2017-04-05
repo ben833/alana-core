@@ -1,6 +1,6 @@
 {
   "name": "@alana/core",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Bot framework for contextual chatbots",
   "main": "lib/index.js",
   "typings": "lib/index",
