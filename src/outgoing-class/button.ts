@@ -1,17 +1,21 @@
 import Outgoing from '../outgoing';
 import { Message, MessageType, MessageTypes } from '../types/message';
 import { ButtonMessage, Button, PostbackType, LinkType, PostbackButton, LinkButton } from '../types/messages/button';
+import * as uuid from 'uuid';
 
-export default class ButtonClass implements Message {
+export default class ButtonClass {
   private message: ButtonMessage = {
     type: 'button',
     text: '',
     buttons: [],
+    id: uuid.v4(),
+    conversation_id: null,
   };
   private outgoing: Outgoing;
 
   constructor(outgoing: Outgoing) {
     this.outgoing = outgoing;
+    this.message.conversation_id = outgoing.conversation;
     return this;
   }
 

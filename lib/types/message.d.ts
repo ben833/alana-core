@@ -1,5 +1,7 @@
 export interface Message {
     type: MessageType;
+    id: string;
+    conversation_id: string;
 }
 export declare type Text = 'text';
 export declare type Image = 'image';

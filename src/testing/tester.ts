@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as Promise from 'bluebird';
 import * as util from 'util';
+import * as uuid from 'uuid';
 
 import * as Responses from './responses';
 import { PlatformMiddleware } from '../types/platform';
@@ -31,6 +32,8 @@ export default class Tester {
     });
     const greeting: GreetingMessage = {
       type: 'greeting',
+      id: uuid.v4(),
+      conversation_id: userId,
     };
     this.addSend(greeting);
   }
@@ -102,6 +105,8 @@ export default class Tester {
     const message: TextMessage = {
       type: 'text',
       text: text,
+      id: uuid.v4(),
+      conversation_id: this.userId,
     };
     this.addSend(message);
     return this;
@@ -114,6 +119,8 @@ export default class Tester {
     const message: PostbackMessage = {
       type: 'postback',
       payload: payload,
+      id: uuid.v4(),
+      conversation_id: this.userId,
     };
     this.addSend(message);
     return this;

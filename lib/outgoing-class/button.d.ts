@@ -1,7 +1,7 @@
 import Outgoing from '../outgoing';
-import { Message, MessageType } from '../types/message';
+import { MessageType } from '../types/message';
 import { Button, PostbackType, LinkType } from '../types/messages/button';
-export default class ButtonClass implements Message {
+export default class ButtonClass {
     private message;
     private outgoing;
     constructor(outgoing: Outgoing);

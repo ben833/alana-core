@@ -9,7 +9,8 @@ export default class Outgoing {
     promise: Promise<PlatformMiddleware>;
     protected user: User;
     protected bot: Botler;
-    constructor(bot: Botler, user: User);
+    readonly conversation: string;
+    constructor(bot: Botler, user: User, conversation: string);
     startScript(name?: string, scriptArguments?: any): void;
     endScript(): void;
     goto(dialogName: string): void;

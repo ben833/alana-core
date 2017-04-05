@@ -156,7 +156,7 @@ export default class Alana {
         completeUser._platform = basicUser._platform;
         completeUser.conversation = completeUser.conversation.concat(message);
         user = completeUser;
-        response = new Outgoing(this, user);
+        response = new Outgoing(this, user, message.conversation_id);
         return completeUser;
       })
       .then(completeUser =>  this.getIntents(completeUser, message))

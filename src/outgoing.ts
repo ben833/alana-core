@@ -6,6 +6,7 @@ import { PlatformMiddleware } from './types/platform';
 import * as Promise from 'bluebird';
 import Botler from './bot';
 import * as _ from 'lodash';
+import * as uuid from 'uuid';
 import { stopFunction, EndScriptException, EndScriptReasons, StopScriptReasons, GotoDialogException } from './scripting/script';
 import { MissingArguments, BadArguments } from './errors';
 
@@ -13,9 +14,12 @@ export default class Outgoing {
   public promise: Promise<PlatformMiddleware> = Promise.resolve(null);
   protected user: User;
   protected bot: Botler;
-  constructor(bot: Botler, user: User) {
+  // tslint:disable-next-line:variable-name
+  public readonly conversation: string;
+  constructor(bot: Botler, user: User, conversation: string) {
     this.bot = bot;
     this.user = user;
+    this.conversation = conversation;
     return this;
   }
 
@@ -63,6 +67,8 @@ export default class Outgoing {
     const textMessage: Messages.TextMessage = {
       type: 'text',
       text: text,
+      id: uuid.v4(),
+      conversation_id: this.conversation,
     };
     return this._send(textMessage);
   }
@@ -71,6 +77,8 @@ export default class Outgoing {
     const message: Messages.ImageMessage = {
       type: 'image',
       url: url,
+      id: uuid.v4(),
+      conversation_id: this.conversation,
     };
     return this._send(message);
   }
@@ -87,6 +95,8 @@ export default class Outgoing {
     const message: Messages.AudioMessage = {
       type: 'audio',
       url: url,
+      id: uuid.v4(),
+      conversation_id: this.conversation,
     };
     return this._send(message);
   }
