@@ -29,8 +29,8 @@ export type StopFunction = () => void;
 export type DialogFunction = (incoming: Incoming, response: Outgoing, stop: StopFunction) => Promise<void>;
 export type GreetingFunction = (user: User, response: Outgoing) => Promise<void>;
 
-export declare class IntentGenerator {
-    public getIntents(message: IncomingMessage, user: User): Promise<Array<Intent>>;
+export abstract class IntentGenerator {
+    public abstract getIntents(message: IncomingMessage, user: User): Promise<Array<Intent>>;
 }
 
 export interface SkillFunction {
