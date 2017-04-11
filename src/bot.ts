@@ -125,7 +125,7 @@ export default class Alana {
       script: null,
       scriptStage: 0,
       scriptArguments: null,
-      state: null,
+      state: {},
     };
     return _.defaults(defaults, anEmptyUser) as User;
   }
