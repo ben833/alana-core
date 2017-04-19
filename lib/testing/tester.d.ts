@@ -28,6 +28,10 @@ export default class Tester {
      */
     expectText(allowedPhrases: Array<string> | string): this;
     /**
+     * Wait to recieve a text message from bot
+     */
+    expectImage(url: string): this;
+    /**
      * Wait to recieve a set of buttons from bot
      * @todo create a better inirializer to create button object
      * @param text Text for the button message to have

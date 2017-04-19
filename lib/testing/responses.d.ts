@@ -13,8 +13,8 @@ export declare class TextResponse extends Response {
     check(message: messages.TextMessage): void;
 }
 export declare class ImageResponse extends Response {
-    protected url: string;
-    constructor(url: string);
+    protected url: string | RegExp;
+    constructor(url: string | RegExp);
     check(message: messages.ImageMessage): void;
 }
 export declare class AudioResponse extends ImageResponse {

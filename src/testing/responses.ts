@@ -41,15 +41,15 @@ export class TextResponse extends Response {
 }
 
 export class ImageResponse extends Response {
-    protected url: string;
-    constructor(url: string) {
+    protected url: string | RegExp;
+    constructor(url: string | RegExp) {
         super();
         this.url = url;
         this.type = messages.MessageTypes.image;
     }
 
     check(message: messages.ImageMessage): void {
-      if (this.url === message.url) {
+      if (message.url.match(this.url as RegExp) === null) {
         throw new Error(`URL mismatch expected '${this.url}', but got '${message.url}'`);
       }
       super.check(message);

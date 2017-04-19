@@ -75,6 +75,14 @@ export default class Tester {
   }
 
   /**
+   * Wait to recieve a text message from bot
+   */
+  public expectImage(url: string): this {
+    this.addRespone(new Responses.ImageResponse(url));
+    return this;
+  }
+
+  /**
    * Wait to recieve a set of buttons from bot
    * @todo create a better inirializer to create button object
    * @param text Text for the button message to have
@@ -177,7 +185,7 @@ export default class Tester {
       }
       return;
     }
-    console.error('Got a message but didn\'t expect one', message, this.timeoutReject);
+    // console.error('Got a message but didn\'t expect one', message, this.timeoutReject);
     if (this.timeoutReject) {
       this.timeoutReject(new Error('Got an extra message: ' + util.inspect(message) ));
     }
