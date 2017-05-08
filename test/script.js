@@ -349,3 +349,61 @@ describe.skip('default script - dialog -> expect loop', () => {
       .run();
   });
 });
+
+describe('expect.text().expect.text()', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .dialog((sessions, response, stop) => {
+      response.sendText('dialog');
+    })
+    .expect.text((session, response) => {
+      response.sendText('expect 1');
+    })
+    .expect.text((sessions, response) => {
+      response.sendText('expect 2');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('dialog')
+      .sendText('input 1')
+      .expectText('expect 1')
+      .sendText('input 2')
+      .expectText('expect 2')
+      .run();
+  });
+});
+
+describe('expect().expect()', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .dialog((sessions, response, stop) => {
+      response.sendText('dialog');
+    })
+    .expect((session, response) => {
+      response.sendText('expect 1');
+    })
+    .expect((sessions, response) => {
+      response.sendText('expect 2');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('dialog')
+      .sendText('input 1')
+      .expectText('expect 1')
+      .sendText('input 2')
+      .expectText('expect 2')
+      .run();
+  });
+});

@@ -12,6 +12,7 @@ export default class Expect extends DialogAction implements PublicMembers {
   private expects: DialogAction[] = [];
   private catchFn: DialogFunction = null;
   public dialog: DialogInput;
+  public expect: ExpectInput;
   public blocking: boolean = true;
   public consumesMessage: boolean = true;
 
@@ -20,6 +21,7 @@ export default class Expect extends DialogAction implements PublicMembers {
     this.myScript = script;
     this.dialog = this.myScript.dialog.bind(this.myScript);
     this.dialog.always = this.myScript.dialog.always.bind(this.myScript);
+    this.expect = this.myScript.expect;
   }
 
   public text(dialogFunction: DialogFunction) {

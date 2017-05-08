@@ -7,6 +7,7 @@ export default class Expect extends DialogAction implements PublicMembers {
     private expects;
     private catchFn;
     dialog: DialogInput;
+    expect: ExpectInput;
     blocking: boolean;
     consumesMessage: boolean;
     constructor(script: Script);
