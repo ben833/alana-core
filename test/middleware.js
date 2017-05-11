@@ -15,6 +15,9 @@ describe('access state', () => {
     .dialog((session, response) => {
       response.sendText(session.user.state.name);
     })
+    .expect((s,r) => {
+      
+    })
 
   it('run', function () {
     return tester.newTest()

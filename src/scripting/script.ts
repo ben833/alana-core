@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as Promise from 'bluebird';
+import * as util from 'util';
 
 import { Incoming, DialogFunction } from '../types/bot';
 import { MessageType, MessageTypes } from '../types/message';
@@ -130,7 +131,7 @@ export default class Script implements MinimalScriptActions {
     return this.dialogs.length;
   }
 
-  public run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step: number = incoming.user.scriptStage) {
+  public run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step: number = incoming.user.scriptStage, skipAlways: boolean = false) {
     const topic = incoming.intent.domain;
     const action = incoming.intent.action;
 
@@ -140,6 +141,9 @@ export default class Script implements MinimalScriptActions {
     let validDialogs: Array<DialogAction> = bottom;
     let forcedDialogs: Array<DialogAction> = top.filter((shell) => shell.always);
 
+    if (skipAlways) {
+      forcedDialogs = [];
+    }
     const runUnforced = () => {
       return Promise.resolve()
         .then(() => {
@@ -255,10 +259,10 @@ export default class Script implements MinimalScriptActions {
     return Promise.resolve()
       .then(() => {
         // Should the bot process the message, is there a match with current message?
-        if (currentDialog.consumesMessage && request.message._eaten) {
-          return null;
-        }
         const fn = currentDialog.process(request);
+        if (fn !== null && currentDialog.consumesMessage && request.message._eaten) {
+          throw new StopException(StopScriptReasons.ExpectCaught);
+        }
         return fn;
       })
       .then((dialog: DialogFunction) => {
@@ -287,7 +291,7 @@ export default class Script implements MinimalScriptActions {
             const dialog = this.dialogs[i];
             if (dialog instanceof Dialog && dialog.name === err.dialogName) {
               request.user.scriptStage = i;
-              return this.run(request, response, nextScript, i);
+              return this.run(request, response, nextScript, i, true);
             }
           }
         }

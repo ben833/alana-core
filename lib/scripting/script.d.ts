@@ -42,7 +42,7 @@ export default class Script implements MinimalScriptActions {
     private expectCatch();
     private completedExpect(fn);
     readonly length: number;
-    run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step?: number): Promise<void>;
+    run(incoming: Incoming, outgoing: Outgoing, nextScript: () => Promise<void>, step?: number, skipAlways?: boolean): Promise<void>;
     begin(dialogFunction: DialogFunction): this;
     _dialog(dialogFunction: DialogFunction): this;
     _dialog(name: string, dialogFunction: DialogFunction): this;

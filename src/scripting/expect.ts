@@ -4,6 +4,7 @@ import Text from './text';
 import Button from './button';
 import Intent from './intent';
 import Match from './match';
+import * as Promise from 'bluebird';
 
 export type PublicMembers = ExpectInput & MinimalScriptActions;
 export default class Expect extends DialogAction implements PublicMembers {
@@ -22,6 +23,9 @@ export default class Expect extends DialogAction implements PublicMembers {
     this.dialog = this.myScript.dialog.bind(this.myScript);
     this.dialog.always = this.myScript.dialog.always.bind(this.myScript);
     this.expect = this.myScript.expect;
+    this.catch(function(s, r) {
+      return Promise.resolve();
+    });
   }
 
   public text(dialogFunction: DialogFunction) {

@@ -10,12 +10,33 @@ describe('only default script', () => {
   bot.start();
 
   bot.newScript()
+    .dialog((incoming, response, stop) => {
+      response.sendText('hi');
+      stop();
+    });
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('hi')
+      .run();
+  });
+});
+
+describe.skip('script with 1 dialog & no stop', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
     .dialog((incoming, response) => {
       response.sendText('hi');
     });
 
   it('run', function () {
     return tester.newTest()
+      .checkForTrailingDialogs()
       .expectText('hi')
       .run();
   });
@@ -30,7 +51,7 @@ describe('only default script with expect', () => {
   bot.newScript()
     .expect.text((incoming, response) => {
       response.sendText(incoming.message.text);
-    });
+    })
 
   it('run', function () {
     return tester.newTest()
@@ -67,8 +88,9 @@ describe('greeting then default', () => {
       response.sendText('hey');
     });
   bot.newScript()
-    .dialog((incoming, response) => {
+    .dialog((incoming, response, stop) => {
       response.sendText('ho');
+      stop();
     });
 
   it('basic', function () {
@@ -83,13 +105,20 @@ describe('greeting then default', () => {
       .begin((incoming, response) => {
         response.sendText('begin');
       })
-      .dialog((incoming, response) => {
+      .dialog((incoming, response, stop) => {
         response.sendText('ho');
+      })
+      .expect((session, response) => {
+        response.sendText('ping');
       });
     return tester.newTest()
+      .checkForTrailingDialogs()
       .expectText('hey')
       .expectText('begin')
-      .expectText('ho')      
+      .expectText('ho')
+      .sendText('hey')
+      .expectText('ping')
+      .expectText('ho')
       .run();
   });
 });
@@ -105,8 +134,9 @@ describe('greeting -> script -> default', () => {
       response.startScript('special');
     });
   bot.newScript()
-    .dialog((incoming, response) => {
+    .dialog((incoming, response, stop) => {
       response.sendText('ho');
+      stop();
     });
   bot.newScript('special')
     .dialog((incoming, response) => {
@@ -133,9 +163,9 @@ describe('script loop in default', () => {
       response.sendText('begin');
       return null;
     })
-    .dialog((incoming, response) => {
+    .dialog((incoming, response, stop) => {
       response.sendText('hi');
-      return null;
+      stop();
     });
 
   it('run', function () {
@@ -177,41 +207,7 @@ describe('mutli script loop', () => {
   it('run', function () {
     return tester.newTest()
       .expectText('Menu: echo, order')
-      .sendText('order')
-      .expectText('1')
-      .expectText('2')
-      .expectText('3')
-      .run();
-  });
-});
-
-describe('mutli script loop', () => {
-  const bot = new Alana.default();
-  const tester = new Alana.TestPlatform(bot);
-  bot.addPlatform(tester);
-  bot.start();
-
-  bot.addGreeting(function(user, response) {
-    response.sendText('Menu: echo, order');
-  });
-
-  bot.newScript()
-    .expect.text((sessions, response) => {
-      response.startScript(sessions.message.text)
-    })
-
-  bot.newScript('order')
-    .dialog((sessions, response) => {
-      response.sendText('1');
-      response.sendText('2');
-    })
-    .dialog((sessions, response) => {
-      response.sendText('3');
-    })
-
-  it('run', function () {
-    return tester.newTest()
-      .expectText('Menu: echo, order')
+      .checkForTrailingDialogs()
       .sendText('order')
       .expectText('1')
       .expectText('2')
@@ -227,16 +223,32 @@ describe('infinite loop', () => {
   bot.start();
 
   bot.newScript()
+    .dialog((s, r) => {
+      r.sendText('code?');
+    })
     .expect.text((sessions, response) => {
       if (sessions.message.text === 'ping') {
-        response.startScript(sessions.message.text)
+        return response.sendText('pong');
       }
+      response.sendText('huh')
     })
 
   it('run', function () {
     return tester.newTest()
       .checkForTrailingDialogs()
-      .sendText('pong')
+      .expectText('code?')
+      .sendText('ping')
+      .expectText('pong')
+      .expectText('code?')
+      .sendText('ping')
+      .expectText('pong')
+      .expectText('code?')
+      .sendText('ping')
+      .expectText('pong')
+      .expectText('code?')
+      .sendText('ping')
+      .expectText('pong')
+      .expectText('code?')
       .run();
   });
 });
@@ -278,7 +290,6 @@ describe('begin -> always + (dialog -> script loop)', () => {
       .sendText('input')
       .expectText('always')
       .expectText('expect')
-      .expectText('always')
       .expectText('dialog')
       .run();
   });
@@ -325,7 +336,7 @@ describe('stop test', () => {
   });
 });
 
-describe.skip('default script - dialog -> expect loop', () => {
+describe('default script - dialog -> expect loop', () => {
   const bot = new Alana.default();
   const tester = new Alana.TestPlatform(bot);
   bot.addPlatform(tester);
@@ -375,6 +386,7 @@ describe('expect.text().expect.text()', () => {
       .expectText('expect 1')
       .sendText('input 2')
       .expectText('expect 2')
+      .expectText('dialog')
       .run();
   });
 });
@@ -404,6 +416,57 @@ describe('expect().expect()', () => {
       .expectText('expect 1')
       .sendText('input 2')
       .expectText('expect 2')
+      .expectText('dialog')
       .run();
   });
 });
+
+describe('expect => startScript', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript('other')
+    .dialog('o', (session, response) => {
+      response.sendText('other');
+    })
+
+  bot.newScript()
+    .dialog('1', (sessions, response, stop) => {
+      response.sendText('dialog');
+    })
+    .expect((session, response) => {
+      response.startScript('other');
+    })
+    .dialog('2', (sessions, response) => {
+      console.log(sessions.user);
+      response.sendText('d2');
+    })
+
+  it('run', function () {
+    return tester.newTest()
+      .checkForTrailingDialogs()
+      .expectText('dialog')
+      .sendText('input 1')
+      .expectText('other')
+      .expectText('dialog')
+      .run();
+  });
+});
+
+/*
+describe('access state', () => {
+  const bot = new Alana.default();
+  const tester = new Alana.TestPlatform(bot);
+  bot.addPlatform(tester);
+  bot.start();
+
+  bot.newScript()
+    .dialog((sessions, response) => {
+      sessions.user.state.name = 'name';
+    })
+    .dialog((session, response) => {
+      response.sendText(session.user.state.name);
+    })
+    */

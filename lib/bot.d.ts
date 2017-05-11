@@ -45,5 +45,5 @@ export default class Alana {
      * @param response Class used to send responses back to the user
      * @param directCall True if being called by process(...) otherwise set to false to stop infinite loops
      */
-    private _process(user, request, response, directCall?);
+    private _process(user, request, response, loops?, directCall?);
 }

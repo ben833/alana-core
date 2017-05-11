@@ -48,6 +48,9 @@ describe('good sendText', () => {
     .dialog((sessions, response) => {
       response.sendText('test');
     })
+    .expect((s,r) => {
+
+    });
 
   it('run', function () {
     return tester.newTest()
@@ -66,6 +69,9 @@ describe('good send', () => {
     .dialog((sessions, response) => {
       response.send('test');
     })
+    .expect((s,r) => {
+
+    });
 
   it('run', function () {
     return tester.newTest()

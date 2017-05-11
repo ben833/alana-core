@@ -167,7 +167,7 @@ export default class Alana {
           message: _.defaults({ _eaten: false }, message),
           user: user,
         };
-        return this._process(user, request, response, true);
+        return this._process(user, request, response, 100, true);
       })
       .then(() => {
         return this.userMiddleware.saveUser(user);
@@ -187,20 +187,14 @@ export default class Alana {
    * @param response Class used to send responses back to the user
    * @param directCall True if being called by process(...) otherwise set to false to stop infinite loops
    */
-  private _process(user: User, request: Incoming, response: Outgoing, directCall: boolean = false): Promise<void> {
+  private _process(user: User, request: Incoming, response: Outgoing, loops: number = 100, directCall: boolean = false): Promise<void> {
     const savedThis = this;
     return Promise.resolve()
       .then(() => {
         const blankScript = function() {
           throw new EndScriptException(EndScriptReasons.Reached);
         };
-        let nextScript: () => Promise<any> = blankScript;
-        // If there is a default script set that as the next script to run
-        if (savedThis._scripts[DEFAULT_SCRIPT]) {
-          nextScript = function() {
-              return savedThis._scripts[DEFAULT_SCRIPT].run(request, response, blankScript);
-            };
-        }
+        const nextScript: () => Promise<any> = blankScript;
 
         if (request.message.type === 'greeting' && user.script === null && directCall === true) {
           if (savedThis.greetingScript) {
@@ -237,23 +231,31 @@ export default class Alana {
       })
       .catch((err: Error) => {
         if (err instanceof EndScriptException) {
-          if (user.script === null) {
-            return;
+          if (loops <= 0) {
+            throw new Error('Infinite loop');
           }
-          user.script = null;
-          user.scriptStage = -1;
+          if (user.script === null) {
+            user.script = null;
+            user.scriptStage = 0;
+          } else {
+            user.script = null;
+            user.scriptStage = -1;
+          }
           user.scriptArguments = {};
-          return savedThis._process(user, request, response);
+          return savedThis._process(user, request, response, loops - 1);
         } else if (err instanceof StopException) {
           if (err.reason === StopScriptReasons.NewScript) {
             return savedThis._process(user, request, response);
           }
           return;
         } else {
-          this.logger.error('error caught');
-          this.logger.error(err);
-          return savedThis.onErrorScript(request, response, stopFunction);
+          throw err;
         }
+      })
+      .catch((err) => {
+        this.logger.error('error caught');
+        this.logger.error(err);
+        return savedThis.onErrorScript(request, response, stopFunction);
       });
   }
 }
